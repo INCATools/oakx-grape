@@ -1,0 +1,22 @@
+{
+  "template": "/Users/cjm/repos/oakx-plugin-cookiecutter",
+  "commit": "0e673650064ed50f465c91aa40cb160bdff37e27",
+  "checkout": null,
+  "context": {
+    "cookiecutter": {
+      "project_name": "oakx-grape",
+      "__project_slug": "oakx_grape",
+      "scheme": "grape",
+      "implementation": "GrapeImplementation",
+      "implementation_name": "grape_implementation",
+      "project_description": "Grape wrapper for OAK",
+      "file_name": "main",
+      "greeting_recipient": "World",
+      "author": "Harshad Hegde <hhegde@lbl.gov>",
+      "github_token_for_doc_deployment": "GH_TOKEN",
+      "github_token_for_pypi_deployment": "PYPI_TOKEN",
+      "_template": "/Users/cjm/repos/oakx-plugin-cookiecutter"
+    }
+  },
+  "directory": null
+}
