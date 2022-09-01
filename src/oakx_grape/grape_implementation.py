@@ -26,6 +26,7 @@ class GrapeImplementation(BasicOntologyInterface):
         self.graph = get_graph_graph_by_name(self.resource.slug)
 
     def entities(self, filter_obsoletes=True, owl_type=None) -> Iterable[CURIE]:
-        for n in self.graph.get_node_ids():
-            yield n
+        g = self.graph
+        for n_id in g.get_node_ids():
+            yield g.get_node_name_from_node_id(n_id)
 

@@ -2,6 +2,13 @@
 
 Grape wrapper for OAK
 
-# Acknowledgements
+## Usage
 
-This [cookiecutter](https://cookiecutter.readthedocs.io/en/stable/README.html) project was developed from the [sphintoxetry-cookiecutter](https://github.com/hrshdhgd/sphintoxetry-cookiecutter) template and will be kept up-to-date using [cruft](https://cruft.github.io/cruft/).
+```
+pip install oakx-grape
+runoak -i grape:kgobo.PATO terms
+```
+
+## Acknowledgements
+
+Created using https://github.com/INCATools/oakx-plugin-cookiecutter by Harshad Hegde
