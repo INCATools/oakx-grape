@@ -3,9 +3,7 @@ from oaklib import OntologyResource
 from oaklib.datamodels.vocabulary import IS_A
 
 from oakx_grape.grape_implementation import GrapeImplementation
-from tests import TEST_OWL, MORPHOLOGY, SHAPE
-from tests import NUCLEUS
-from oaklib.selector import get_resource_from_shorthand, discovered_plugins, get_implementation_from_shorthand
+from tests import MORPHOLOGY, SHAPE
 
 import unittest
 
@@ -15,13 +13,20 @@ class TestGrapeImplementation2(unittest.TestCase):
     def setUp(self) -> None:
         self.oi = GrapeImplementation(OntologyResource("PATO"))
 
-    def test_all(self):
+    def test_entities(self):
         """
         Test basic functionality
         """
         curies = list(self.oi.all_entity_curies())
-        self.assertIn(NUCLEUS, curies)
-        self.assertEqual("nucleus", self.oi.label(NUCLEUS))
+        self.assertIn(SHAPE, curies)
+        self.assertIn(MORPHOLOGY, curies)
+
+    @unittest.skip("https://github.com/AnacletoLAB/ensmallen/issues/175")
+    def test_labels(self):
+        """
+        Test basic functionality
+        """
+        self.assertEqual("shape", self.oi.label(SHAPE))
 
     def test_edges(self):
         """
