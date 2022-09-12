@@ -18,7 +18,7 @@ class TestGrapeImplementation(unittest.TestCase):
         """tests plugins are discovered"""
         plugins = discovered_plugins
         self.assertIn("oakx_grape", plugins)
-        print(implementation_resolver.)
+        print(implementation_resolver)
         slug = f"grape:{TEST_OWL}"
         r = get_resource_from_shorthand(slug)
         self.assertEqual(r.implementation_class, GrapeImplementation)
