@@ -1,9 +1,7 @@
 """oakx_grape package."""
-from importlib import metadata
+__version__ = '0.1.0'
 
 from oakx_grape.grape_implementation import GrapeImplementation
-
-__version__ = metadata.version(__name__)
 
 schemes = {
     'grape': GrapeImplementation
