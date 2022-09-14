@@ -8,11 +8,10 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.9"
-setuptools = "^64.0.1"
 tox = "^3.25.1"
 click = "^8.1.3"
 importlib = "^1.0.4"
-oaklib = "^0.1.37"
+oaklib = "^0.1.42"
 grape = "^0.1.23"
 
 [tool.poetry.dev-dependencies]
@@ -23,7 +22,7 @@ sphinx-autodoc-typehints = "^1.19.2"
 sphinx-click = "^4.3.0"
 
 [tool.poetry.scripts]
-oakx-grape = "oakx-grape.cli:main"
+oakx-grape = "oakx_grape.cli:main"
 
 [tool.poetry.extras]
 docs = [
@@ -32,6 +31,9 @@ docs = [
     "sphinx-autodoc-typehints",
     "sphinx-click",
     ]
+
+[tool.poetry.plugins."oaklib.plugins"]
+grape = "oakx_grape.grape_implementation:GrapeImplementation"
 
 [tool.black]
 line-length = 100
