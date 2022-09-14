@@ -27,7 +27,7 @@ def get_graph_function_by_name(name: str, module = "kgobo") -> Callable:
 
 
 @dataclass
-class GrapeImplementation(BasicOntologyInterface, SemanticSimilarityInterface):
+class GrapeImplementation(SemanticSimilarityInterface):
     """
     An experimental wrapper for Grape/Ensmallen
     """
