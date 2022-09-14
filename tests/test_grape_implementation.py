@@ -1,9 +1,8 @@
 """GrapeImplementation test."""
-from oakx_grape.grape_implementation import GrapeImplementation
 from tests import TEST_OWL
 from tests import NUCLEUS
 from oaklib.selector import get_resource_from_shorthand
-from oaklib.implementations import discovered_plugins, implementation_resolver
+from oaklib.implementations import implementation_resolver
 
 import unittest
 
@@ -16,17 +15,19 @@ class TestGrapeImplementation(unittest.TestCase):
         
     def test_plugin(self):
         """tests plugins are discovered"""
-        plugins = discovered_plugins
-        self.assertIn("oakx_grape", plugins)
-        print(implementation_resolver)
+        # This needs to be imported here to avoid circular imports
+        from oakx_grape.grape_implementation import GrapeImplementation
+        
+        resolved = implementation_resolver.lookup("grape")
+        self.assertEqual(resolved, GrapeImplementation)
         slug = f"grape:{TEST_OWL}"
         r = get_resource_from_shorthand(slug)
         self.assertEqual(r.implementation_class, GrapeImplementation)
 
-    def test_all(self):
-        """
-        Test basic functionality
-        """
-        curies = list(self.oi.all_entity_curies())
-        self.assertIn(NUCLEUS, curies)
+    # def test_all(self):
+    #     """
+    #     Test basic functionality
+    #     """
+    #     curies = list(self.oi.all_entity_curies())
+    #     self.assertIn(NUCLEUS, curies)
 

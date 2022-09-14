@@ -23,7 +23,7 @@ sphinx-autodoc-typehints = "^1.19.2"
 sphinx-click = "^4.3.0"
 
 [tool.poetry.scripts]
-oakx-grape = "oakx-grape.cli:main"
+oakx-grape = "oakx_grape.cli:main"
 
 [tool.poetry.extras]
 docs = [
@@ -32,6 +32,9 @@ docs = [
     "sphinx-autodoc-typehints",
     "sphinx-click",
     ]
+
+[tool.poetry.plugins."oaklib.plugins"]
+grape = "oakx_grape.grape_implementation:GrapeImplementation"
 
 [tool.black]
 line-length = 100
