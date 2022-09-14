@@ -17,7 +17,7 @@ class TestGrapeImplementation2(unittest.TestCase):
         """
         Test basic functionality
         """
-        curies = list(self.oi.all_entity_curies())
+        curies = list(self.oi.entity_curies())
         self.assertIn(SHAPE, curies)
         self.assertIn(MORPHOLOGY, curies)
 

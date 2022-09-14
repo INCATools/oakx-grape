@@ -4,7 +4,9 @@ from typing import Iterable, Optional, List, Iterator, Tuple, Callable
 from oaklib import BasicOntologyInterface
 import grape
 from ensmallen import Graph
+from oaklib.datamodels.similarity import TermPairwiseSimilarity
 from oaklib.datamodels.vocabulary import IS_A
+from oaklib.interfaces.semsim_interface import SemanticSimilarityInterface
 from oaklib.types import CURIE, PRED_CURIE
 
 # Mappings between biolink predicates and RO/OWL/RDF
@@ -25,7 +27,7 @@ def get_graph_function_by_name(name: str, module = "kgobo") -> Callable:
 
 
 @dataclass
-class GrapeImplementation(BasicOntologyInterface):
+class GrapeImplementation(BasicOntologyInterface, SemanticSimilarityInterface):
     """
     An experimental wrapper for Grape/Ensmallen
     """
@@ -87,4 +89,18 @@ class GrapeImplementation(BasicOntologyInterface):
             pred = g.get_edge_type_name_from_edge_id(edge_id)
             pred = self.map_biolink_predicate(pred)
             yield pred, subj
+
+    # -- SemSim methods --
+
+    def pairwise_similarity(
+            self,
+            subject: CURIE,
+            object: CURIE,
+            predicates: List[PRED_CURIE] = None,
+            subject_ancestors: List[CURIE] = None,
+            object_ancestors: List[CURIE] = None,
+    ) -> TermPairwiseSimilarity:
+        if predicates:
+            raise ValueError(f"For now can only use hardcoded ensmallen predicates")
+        raise NotImplementedError
 
