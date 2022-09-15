@@ -7,6 +7,8 @@ ROOT = os.path.abspath(os.path.dirname(__file__))
 INPUT_DIR = Path(ROOT) / "input"
 OUTPUT_DIR = Path(ROOT) / "output"
 TEST_OWL = INPUT_DIR / "go-nucleus.owl"
+TEST_NODES_TSV = INPUT_DIR / "go-nucleus.nodes.tsv"
+TEST_EDGES_TSV = INPUT_DIR / "go-nucleus.edges.tsv"
 
 CHEBI_NUCLEUS = 'CHEBI:33252'
 NUCLEUS = 'GO:0005634'
