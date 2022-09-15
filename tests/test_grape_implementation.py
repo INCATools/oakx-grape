@@ -11,7 +11,8 @@ class TestGrapeImplementation2(unittest.TestCase):
     """TEMP until https://github.com/INCATools/ontology-access-kit/issues/250 fixes."""
 
     def setUp(self) -> None:
-        self.oi = get_implementation_from_shorthand("grape:pato")
+        self.oi = get_implementation_from_shorthand("sqlite:obo:pato")
+        #self.oi = get_implementation_from_shorthand("grape:pato")
         # self.oi = GrapeImplementation(OntologyResource("PATO"))
 
     def test_entities(self):
@@ -55,6 +56,4 @@ class TestGrapeImplementation2(unittest.TestCase):
         for a in ancs:
             print(f"{a}")
 
-    def test_from_csv(self):
-        oi = self.oi
-        oi = self._load_graph_from_adapter(oi)
+

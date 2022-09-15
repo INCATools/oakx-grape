@@ -9,15 +9,19 @@ from oaklib import BasicOntologyInterface, OntologyResource
 from oaklib.datamodels.similarity import TermPairwiseSimilarity
 from oaklib.datamodels.vocabulary import IS_A
 from oaklib.implementations import SqlImplementation
+from oaklib.interfaces.basic_ontology_interface import RELATIONSHIP_MAP
 from oaklib.interfaces.semsim_interface import SemanticSimilarityInterface
 from oaklib.types import CURIE, PRED_CURIE
 
 # Mappings between biolink predicates and RO/OWL/RDF
 # This won't be necessary once we load the ensmallen graph directly
 # TODO: move this to OAK-central
+from oaklib.utilities.basic_utils import pairs_as_dict
 from oakx_grape.loader import load_graph_from_adapter
 
-PREDICATE_MAP = {"biolink:subclass_of": IS_A}
+# no longer required
+#PREDICATE_MAP = {"biolink:subclass_of": IS_A}
+PREDICATE_MAP = {}
 
 GRAPH_PAIR = Tuple[Graph, Graph]
 
@@ -75,14 +79,23 @@ class GrapeImplementation(SemanticSimilarityInterface):
         # This is a dumb temporary measure for testing.
         # In future we will first use the wrapped adapter to to get the graph,
         # and communicate it to graph via something like dumping files then loading
-        f = get_graph_function_by_name(slug.upper())
-        if self.wrapped_adapter is None:
-            self.wrapped_adapter = SqlImplementation(OntologyResource(f"obo:{slug.lower()}"))
-        self.graph = f(directed=True)
-        self.transposed_graph = self.graph.to_transposed()
-        oi = self.wrapped_adapter
+        if slug.startswith("kgobo:"):
+            slug = slug.replace("kgobo:", "")
+            f = get_graph_function_by_name(slug.upper())
+            if self.wrapped_adapter is None:
+                self.wrapped_adapter = SqlImplementation(OntologyResource(f"obo:{slug.lower()}"))
+            self.graph = f(directed=True)
+            self.transposed_graph = self.graph.to_transposed()
+        else:
+            from oaklib.selector import get_implementation_from_shorthand
+            inner_oi = get_implementation_from_shorthand(slug)
+            print(f"OI={inner_oi}")
+            self.wrapped_adapter = inner_oi
+            self.graph = load_graph_from_adapter(inner_oi)
+            #self.transposed_graph = load_graph_from_adapter(inner_oi, transpose=True)
+            self.transposed_graph = self.graph.to_transposed()
         # delegation magic
-        methods = dict(inspect.getmembers(oi))
+        methods = dict(inspect.getmembers(self.wrapped_adapter))
         for m in self.delegated_methods:
             setattr(GrapeImplementation, m, methods[m])
 
@@ -100,8 +113,6 @@ class GrapeImplementation(SemanticSimilarityInterface):
     def _load_graph_from_adapter(self, oi: BasicOntologyInterface):
         self.graph = load_graph_from_adapter(oi)
         self.transposed_graph = g.to_transposed()
-
-
 
     def _graph_pair_by_predicates(self, predicates: List[PRED_CURIE] = None):
         # note the size of the cache will grow with each distinct combination of
@@ -140,6 +151,9 @@ class GrapeImplementation(SemanticSimilarityInterface):
             if predicates and pred not in predicates:
                 continue
             yield pred, obj
+
+    def outgoing_relationship_map(self, *args, **kwargs) -> RELATIONSHIP_MAP:
+        return pairs_as_dict(self.outgoing_relationships(*args, **kwargs))
 
     def incoming_relationships(
         self, curie: CURIE, predicates: List[PRED_CURIE] = None
