@@ -1,6 +1,7 @@
 """Command line interface for oakx-grape."""
-import click
 import logging
+
+import click
 
 from oakx_grape import __version__
 from oakx_grape.grape_implementation import GrapeImplementation
@@ -10,6 +11,7 @@ __all__ = [
 ]
 
 logger = logging.getLogger(__name__)
+
 
 @click.group()
 @click.option("-v", "--verbose", count=True)
@@ -30,11 +32,11 @@ def main(verbose: int, quiet: bool):
     if quiet:
         logger.setLevel(level=logging.ERROR)
 
+
 @main.command()
 def run():
     """Run the oakx-grape's demo command."""
     impl = GrapeImplementation()
-     
 
 
 if __name__ == "__main__":
