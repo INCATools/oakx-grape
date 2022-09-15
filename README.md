@@ -2,26 +2,31 @@
 
 Grape wrapper for OAK
 
-**PRE-ALPHA**
+**ALPHA**
 
 ## Usage
 
 ```
 pip install oakx-grape
-runoak -i grape:kgobo.PATO terms
+runoak -i grape:pato terms
 ```
 
-NOTE: the plugin mechanism is currently broken, see https://github.com/INCATools/ontology-access-kit/issues/250
+## How it works
 
-For now see https://github.com/INCATools/oakx-grape/blob/main/tests/test_grape_implementation2.py to see exemplar tests
+Currently when you use the `grape:foo` selector it will do two things:
 
-Example:
+1. load foo from the semsql repository as a sqlite database, and create a [SqlImplementation](https://incatools.github.io/ontology-access-kit/implementations/sqldb.html)
+2. Load foo from the kgobo repository as an ensmallen graph
 
-```bash
-poetry run runoak -i grape:PATO terms
-```
+Various [OAK interfaces](https://incatools.github.io/ontology-access-kit/interfaces/index.html) are delegated to one of these wrapped backends, or potentially multiplexed
 
-semsim to come
+The idea is to use Grape for anything requiring performant graph processing (e.g. semsim, embedding) and delegate everything else to OAK
+
+The idea is we will be able to run a notebook like this:
+
+https://github.com/INCATools/ontology-access-kit/blob/main/notebooks/Monarch/PhenIO-Tutorial.ipynb
+
+With the semsim part handled by OAK
 
 ## TODO
 

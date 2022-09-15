@@ -1,17 +1,18 @@
 """GrapeImplementation test."""
+import unittest
+
 from oaklib.datamodels.vocabulary import IS_A
 from oaklib.selector import get_implementation_from_shorthand
 
 from tests import MORPHOLOGY, SHAPE
 
-import unittest
 
 class TestGrapeImplementation2(unittest.TestCase):
     """TEMP until https://github.com/INCATools/ontology-access-kit/issues/250 fixes."""
 
     def setUp(self) -> None:
         self.oi = get_implementation_from_shorthand("grape:pato")
-        #self.oi = GrapeImplementation(OntologyResource("PATO"))
+        # self.oi = GrapeImplementation(OntologyResource("PATO"))
 
     def test_entities(self):
         """
@@ -21,7 +22,7 @@ class TestGrapeImplementation2(unittest.TestCase):
         self.assertIn(SHAPE, curies)
         self.assertIn(MORPHOLOGY, curies)
 
-    #@unittest.skip("https://github.com/AnacletoLAB/ensmallen/issues/175")
+    # @unittest.skip("https://github.com/AnacletoLAB/ensmallen/issues/175")
     def test_labels(self):
         """
         Test basic functionality
@@ -45,5 +46,15 @@ class TestGrapeImplementation2(unittest.TestCase):
             print(f"{pred} {subj}")
         self.assertIn((IS_A, SHAPE), rels)
 
+    @unittest.skip("Need ensmallen help")
+    def test_ancestors(self):
+        """
+        Test ability to traverse from a node to ancestors
+        """
+        ancs = list(self.oi.ancestors(SHAPE))
+        for a in ancs:
+            print(f"{a}")
 
-
+    def test_from_csv(self):
+        oi = self.oi
+        oi = self._load_graph_from_adapter(oi)
