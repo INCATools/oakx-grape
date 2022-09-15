@@ -19,9 +19,7 @@ from oaklib.types import CURIE, PRED_CURIE
 from oaklib.utilities.basic_utils import pairs_as_dict
 from oakx_grape.loader import load_graph_from_adapter
 
-# no longer required
-#PREDICATE_MAP = {"biolink:subclass_of": IS_A}
-PREDICATE_MAP = {}
+PREDICATE_MAP = {"biolink:subclass_of": IS_A}
 
 GRAPH_PAIR = Tuple[Graph, Graph]
 
@@ -53,6 +51,8 @@ class GrapeImplementation(SemanticSimilarityInterface):
     so we maintain two graphs
     """
 
+    uses_biolink: bool = None
+
     _cached_graphs_by_predicates: Mapping[Tuple, GRAPH_PAIR] = None
 
     wrapped_adapter: BasicOntologyInterface = None
@@ -81,6 +81,7 @@ class GrapeImplementation(SemanticSimilarityInterface):
         # and communicate it to graph via something like dumping files then loading
         if slug.startswith("kgobo:"):
             slug = slug.replace("kgobo:", "")
+            self.uses_biolink = True
             f = get_graph_function_by_name(slug.upper())
             if self.wrapped_adapter is None:
                 self.wrapped_adapter = SqlImplementation(OntologyResource(f"obo:{slug.lower()}"))
@@ -108,7 +109,10 @@ class GrapeImplementation(SemanticSimilarityInterface):
         :param predicate:
         :return:
         """
-        return PREDICATE_MAP.get(predicate, predicate)
+        if self.uses_biolink:
+            return PREDICATE_MAP.get(predicate, predicate)
+        else:
+            return predicate
 
     def _load_graph_from_adapter(self, oi: BasicOntologyInterface):
         self.graph = load_graph_from_adapter(oi)
