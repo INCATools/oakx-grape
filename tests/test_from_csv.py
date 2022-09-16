@@ -20,8 +20,9 @@ class TestGrapeImplementation(unittest.TestCase):
             edge_list_header=True,
             sources_column="subject",
             destinations_column="object",
-            ## Both source and destinations columns use numeric node_ids instead of node names
+            ## Both source and destinations columns use node names
             edge_list_numeric_node_ids=False,
+            edge_list_edge_types_column="predicate",
             # Nodes related parameters
             ## The path to the nodes list tsv
             node_path=str(TEST_NODES_TSV),
@@ -30,11 +31,12 @@ class TestGrapeImplementation(unittest.TestCase):
             ## KGX
             node_list_header=True,
             nodes_column="id",
+            default_node_type="biolink:NamedThing",
             # Graph related parameters
             ## The graph is undirected
             directed=False,
             ## The name of the graph is HomoSapiens
-            name="MyTest",
+            name="HomoSapiens",
             ## Display a progress bar, (this might be in the terminal and not in the notebook)
             verbose=False,
         )
