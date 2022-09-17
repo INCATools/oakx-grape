@@ -11,8 +11,8 @@ class TestGrapeImplementation2(unittest.TestCase):
     """TEMP until https://github.com/INCATools/ontology-access-kit/issues/250 fixes."""
 
     def setUp(self) -> None:
-        #self.oi = get_implementation_from_shorthand("grape:sqlite:obo:pato")
-        self.oi = get_implementation_from_shorthand("grape:kgobo:pato")
+        self.oi = get_implementation_from_shorthand("grape:sqlite:obo:pato")
+        #self.oi = get_implementation_from_shorthand("grape:kgobo:pato")
         #self.oi = get_implementation_from_shorthand("grape:pato")
         # self.oi = GrapeImplementation(OntologyResource("PATO"))
 
