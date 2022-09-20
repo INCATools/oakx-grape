@@ -8,30 +8,33 @@ Grape wrapper for OAK
 
 ```
 pip install oakx-grape
-runoak -i grape:pato terms
+runoak -i grape:sqlite:obo:pato relationships --direction both shape
 ```
 
 ## How it works
 
-Currently when you use the `grape:foo` selector it will do two things:
+This plugin implements a grape wrapper. The wrapper in fact wraps two adapters:
 
-1. load foo from the semsql repository as a sqlite database, and create a [SqlImplementation](https://incatools.github.io/ontology-access-kit/implementations/sqldb.html)
-2. Load foo from the kgobo repository as an ensmallen graph
+1. An adaptor to ensmallen/grape, for performing performance-intensive graph operations
+2. An OAK adapter for handling everything else, including lookup by labels, search, predicate filtering, etc
 
-Various [OAK interfaces](https://incatools.github.io/ontology-access-kit/interfaces/index.html) are delegated to one of these wrapped backends, or potentially multiplexed
+There are two choices of selector:
 
-The idea is to use Grape for anything requiring performant graph processing (e.g. semsim, embedding) and delegate everything else to OAK
+1. `grape:kgobo:{go,pato,uberon,...}`
+2. `grape:OAK-SELECTOR`
+
+with the first pattern, the grape graph is loaded from kgobo, and the oak adapter is loaded from semantic sql
+
+with the second, you can most existing existing OAK adapters:
+
+- sqlite/semsql
+- obo
+- rdf/owl
+
+Note you CANNOT use a backend like ubegraph or bioportal that relies on API calls
 
 The idea is we will be able to run a notebook like this:
 
 https://github.com/INCATools/ontology-access-kit/blob/main/notebooks/Monarch/PhenIO-Tutorial.ipynb
 
 With the semsim part handled by OAK
-
-## TODO
-
-We need to decide on the appropriate wrapping method. Currently Grape ignores all literals. See this issue: https://github.com/AnacletoLAB/ensmallen/issues/175
-
-## Acknowledgements
-
-Created using https://github.com/INCATools/oakx-plugin-cookiecutter by Harshad Hegde

@@ -9,8 +9,18 @@ from oaklib import BasicOntologyInterface, OntologyResource
 from oaklib.datamodels.similarity import TermPairwiseSimilarity
 from oaklib.datamodels.vocabulary import IS_A
 from oaklib.implementations import SqlImplementation
+from oaklib.interfaces import SubsetterInterface
 from oaklib.interfaces.basic_ontology_interface import RELATIONSHIP_MAP
+from oaklib.interfaces.differ_interface import DifferInterface
+from oaklib.interfaces.mapping_provider_interface import MappingProviderInterface
+from oaklib.interfaces.metadata_interface import MetadataInterface
+from oaklib.interfaces.obograph_interface import OboGraphInterface
+from oaklib.interfaces.patcher_interface import PatcherInterface
+from oaklib.interfaces.relation_graph_interface import RelationGraphInterface
+from oaklib.interfaces.search_interface import SearchInterface
 from oaklib.interfaces.semsim_interface import SemanticSimilarityInterface
+from oaklib.interfaces.validator_interface import ValidatorInterface
+
 from oaklib.types import CURIE, PRED_CURIE
 
 # Mappings between biolink predicates and RO/OWL/RDF
@@ -36,7 +46,16 @@ def get_graph_function_by_name(name: str, module="kgobo") -> Callable:
 
 
 @dataclass
-class GrapeImplementation(SemanticSimilarityInterface):
+class GrapeImplementation(RelationGraphInterface,
+                          OboGraphInterface,
+                          ValidatorInterface,
+                          SearchInterface,
+                          SubsetterInterface,
+                          MappingProviderInterface,
+                          PatcherInterface,
+                          SemanticSimilarityInterface,
+                          MetadataInterface,
+                          DifferInterface,):
     """
     An experimental wrapper for Grape/Ensmallen
     """
@@ -185,6 +204,7 @@ class GrapeImplementation(SemanticSimilarityInterface):
             start_curies = [start_curies]
         for curie in start_curies:
             curie_id = g.get_node_id_from_node_name(curie)
+            # TODO: find the right ensmallen method
             anc_ids.update(g.get_successors_from_node_id(curie_id))
         for anc_id in anc_ids:
             yield g.get_node_name_from_node_id(anc_id)
