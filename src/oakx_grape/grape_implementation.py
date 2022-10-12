@@ -1,9 +1,11 @@
-import csv
+"""Plugin for ensmallen/grape."""
 import inspect
-import tempfile
+import logging
 from dataclasses import dataclass
-from typing import Callable, ClassVar, Iterable, Iterator, List, Optional, Tuple, Union, Mapping
+from typing import Callable, ClassVar, Iterable, Iterator, List, Mapping, Optional, Tuple
 
+from embiggen.edge_prediction.edge_prediction_ensmallen.perceptron import PerceptronEdgePrediction
+from embiggen.embedders.ensmallen_embedders.first_order_line import FirstOrderLINEEnsmallen
 from ensmallen import Graph
 from oaklib import BasicOntologyInterface, OntologyResource
 from oaklib.datamodels.similarity import TermPairwiseSimilarity
@@ -20,13 +22,13 @@ from oaklib.interfaces.relation_graph_interface import RelationGraphInterface
 from oaklib.interfaces.search_interface import SearchInterface
 from oaklib.interfaces.semsim_interface import SemanticSimilarityInterface
 from oaklib.interfaces.validator_interface import ValidatorInterface
-
 from oaklib.types import CURIE, PRED_CURIE
 
 # Mappings between biolink predicates and RO/OWL/RDF
 # This won't be necessary once we load the ensmallen graph directly
 # TODO: move this to OAK-central
 from oaklib.utilities.basic_utils import pairs_as_dict
+
 from oakx_grape.loader import load_graph_from_adapter
 
 PREDICATE_MAP = {"biolink:subclass_of": IS_A}
@@ -46,18 +48,22 @@ def get_graph_function_by_name(name: str, module="kgobo") -> Callable:
 
 
 @dataclass
-class GrapeImplementation(RelationGraphInterface,
-                          OboGraphInterface,
-                          ValidatorInterface,
-                          SearchInterface,
-                          SubsetterInterface,
-                          MappingProviderInterface,
-                          PatcherInterface,
-                          SemanticSimilarityInterface,
-                          MetadataInterface,
-                          DifferInterface,):
+class GrapeImplementation(
+    RelationGraphInterface,
+    OboGraphInterface,
+    ValidatorInterface,
+    SearchInterface,
+    SubsetterInterface,
+    MappingProviderInterface,
+    PatcherInterface,
+    SemanticSimilarityInterface,
+    MetadataInterface,
+    DifferInterface,
+):
     """
-    An experimental wrapper for Grape/Ensmallen
+    An experimental wrapper for Grape/Ensmallen.
+
+    This is intended primarily for semsim.
     """
 
     graph: Graph = None
@@ -78,13 +84,14 @@ class GrapeImplementation(RelationGraphInterface,
     """An OAK implementation that takes care of everything that ensmallen cannot handle"""
 
     delegated_methods: ClassVar[List[str]] = [
-        "label",
-        "labels",
-        "curie_to_uri",
-        "uri_to_curie",
-        "ontologies",
-        "obsoletes",
-        "basic_search",
+        BasicOntologyInterface.label,
+        BasicOntologyInterface.labels,
+        BasicOntologyInterface.curie_to_uri,
+        BasicOntologyInterface.uri_to_curie,
+        BasicOntologyInterface.ontologies,
+        BasicOntologyInterface.obsoletes,
+        SearchInterface.basic_search,
+        OboGraphInterface.node,
     ]
     """all methods that should be delegated to wrapped_adapter"""
 
@@ -93,35 +100,39 @@ class GrapeImplementation(RelationGraphInterface,
         # we delegate to two different implementations
         # 1. an ensmallen_graph
         # 2. a sqlite implementation
-        # For now we load both from different sources
-        # (1: kgobo; 2: bbop-sqlite).
-        # This is a dumb temporary measure for testing.
-        # In future we will first use the wrapped adapter to to get the graph,
-        # and communicate it to graph via something like dumping files then loading
+        # The selector is one of two forms, indicating whether
+        # the grape graph should come directly from KGOBO,
+        # or whether it should come from the OAK ontology
         if slug.startswith("kgobo:"):
+            # fetch a pre-published ontology simultaneously
+            # from kgobo and semsql. Note: there is no guarantee
+            # these are in sync, so problems may arise
             slug = slug.replace("kgobo:", "")
             self.uses_biolink = True
+            logging.info(f"Fetching {slug} from KGOBO")
             f = get_graph_function_by_name(slug.upper())
             if self.wrapped_adapter is None:
+                logging.info(f"Fetching {slug} from SemSQL")
                 self.wrapped_adapter = SqlImplementation(OntologyResource(f"obo:{slug.lower()}"))
             self.graph = f(directed=True)
-            self.transposed_graph = self.graph.to_transposed()
         else:
+            # build the grape graph from the OAK ontology
             from oaklib.selector import get_implementation_from_shorthand
+
+            logging.info(f"Wrapping an existing OAK implementation to fetch {slug}")
             inner_oi = get_implementation_from_shorthand(slug)
-            print(f"OI={inner_oi}")
             self.wrapped_adapter = inner_oi
             self.graph = load_graph_from_adapter(inner_oi)
-            #self.transposed_graph = load_graph_from_adapter(inner_oi, transpose=True)
-            self.transposed_graph = self.graph.to_transposed()
+        self.transposed_graph = self.graph.to_transposed()
         # delegation magic
         methods = dict(inspect.getmembers(self.wrapped_adapter))
         for m in self.delegated_methods:
-            setattr(GrapeImplementation, m, methods[m])
+            mn = m if isinstance(m, str) else m.__name__
+            setattr(GrapeImplementation, mn, methods[mn])
 
     def map_biolink_predicate(self, predicate: PRED_CURIE) -> PRED_CURIE:
         """
-        Maps from biolink (use in KGX) to RO/OWL.
+        Map from biolink (use in KGX) to RO/OWL.
 
         Note this is only necessary for graphs from kgx obo
 
@@ -135,7 +146,7 @@ class GrapeImplementation(RelationGraphInterface,
 
     def _load_graph_from_adapter(self, oi: BasicOntologyInterface):
         self.graph = load_graph_from_adapter(oi)
-        self.transposed_graph = g.to_transposed()
+        self.transposed_graph = self.graph.to_transposed()
 
     def _graph_pair_by_predicates(self, predicates: List[PRED_CURIE] = None):
         # note the size of the cache will grow with each distinct combination of
@@ -157,6 +168,7 @@ class GrapeImplementation(RelationGraphInterface,
         return filtered_graph, filtered_transposed_graph
 
     def entities(self, filter_obsoletes=True, owl_type=None) -> Iterable[CURIE]:
+        """Implement OAK interface."""
         g = self.graph
         for n_id in g.get_node_ids():
             yield g.get_node_name_from_node_id(n_id)
@@ -164,6 +176,7 @@ class GrapeImplementation(RelationGraphInterface,
     def outgoing_relationships(
         self, curie: CURIE, predicates: List[PRED_CURIE] = None
     ) -> Iterator[Tuple[PRED_CURIE, CURIE]]:
+        """Implement OAK interface."""
         g = self.graph
         curie_id = g.get_node_id_from_node_name(curie)
         for object_id in g.get_neighbour_node_ids_from_node_id(curie_id):
@@ -176,11 +189,13 @@ class GrapeImplementation(RelationGraphInterface,
             yield pred, obj
 
     def outgoing_relationship_map(self, *args, **kwargs) -> RELATIONSHIP_MAP:
+        """Implement OAK interface."""
         return pairs_as_dict(self.outgoing_relationships(*args, **kwargs))
 
     def incoming_relationships(
         self, curie: CURIE, predicates: List[PRED_CURIE] = None
     ) -> Iterator[Tuple[PRED_CURIE, CURIE]]:
+        """Implement OAK interface."""
         g = self.transposed_graph
         curie_id = g.get_node_id_from_node_name(curie)
         for subject_id in g.get_neighbour_node_ids_from_node_id(curie_id):
@@ -192,22 +207,9 @@ class GrapeImplementation(RelationGraphInterface,
                 continue
             yield pred, subj
 
-    def ancestors(
-        self,
-        start_curies: Union[CURIE, List[CURIE]],
-        predicates: List[PRED_CURIE] = None,
-        reflexive=True,
-    ) -> Iterable[CURIE]:
-        g = self.graph
-        anc_ids = {}
-        if not isinstance(start_curies, list):
-            start_curies = [start_curies]
-        for curie in start_curies:
-            curie_id = g.get_node_id_from_node_name(curie)
-            # TODO: find the right ensmallen method
-            anc_ids.update(g.get_successors_from_node_id(curie_id))
-        for anc_id in anc_ids:
-            yield g.get_node_name_from_node_id(anc_id)
+    def incoming_relationship_map(self, *args, **kwargs) -> RELATIONSHIP_MAP:
+        """Implement OAK interface."""
+        return pairs_as_dict(self.incoming_relationships(*args, **kwargs))
 
     # -- SemSim methods --
 
@@ -219,6 +221,22 @@ class GrapeImplementation(RelationGraphInterface,
         subject_ancestors: List[CURIE] = None,
         object_ancestors: List[CURIE] = None,
     ) -> TermPairwiseSimilarity:
+        """Implement OAK interface."""
         if predicates:
-            raise ValueError(f"For now can only use hardcoded ensmallen predicates")
+            raise ValueError("For now can only use hardcoded ensmallen predicates")
         raise NotImplementedError
+
+    def predict(self) -> Iterator[Tuple[float, CURIE, Optional[PRED_CURIE], CURIE]]:
+        """Implement OAK interface."""
+        embedding = FirstOrderLINEEnsmallen().fit_transform(self.graph)
+        model = PerceptronEdgePrediction(
+            edge_features=None,
+            number_of_edges_per_mini_batch=32,
+            edge_embeddings="CosineSimilarity",
+        )
+        model.fit(graph=self.graph, node_features=embedding)
+        df = model.predict_proba(
+            graph=self.graph, node_features=embedding, return_predictions_dataframe=True
+        )
+        for _, row in df.iterrows():
+            yield row["predictions"], row["sources"], None, row["destinations"]

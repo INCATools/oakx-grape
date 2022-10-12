@@ -21,4 +21,5 @@ MORPHOLOGY = "PATO:0000051"
 
 
 def output_path(fn: str) -> str:
+    """Return test input folder path."""
     return str(Path(OUTPUT_DIR) / fn)
