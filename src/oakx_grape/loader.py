@@ -1,4 +1,4 @@
-import csv
+"""Loads ensmallen graphs."""
 import logging
 import tempfile
 
@@ -13,7 +13,10 @@ ID_COLUMN = "id"
 
 def load_graph_from_adapter(oi: BasicOntologyInterface, transpose=False, name="Unnamed") -> Graph:
     """
-    Creates an ensmallen graph from an OAK ontology interface
+    Create an ensmallen graph from an OAK ontology interface.
+
+    This currently works by serializing the OAK graph as minimal KGX,
+    and using Grape/ensmallen to load.
     """
     # note: this may be replaced by a kgx writer in oak core
     node_file = tempfile.NamedTemporaryFile("w", newline="", encoding="utf-8", delete=True)
@@ -35,7 +38,7 @@ def load_graph_from_adapter(oi: BasicOntologyInterface, transpose=False, name="U
                 edge_file.write(f"{s}\t{p}\t{o}\n")
     node_file.seek(0)
     edge_file.seek(0)
-    logging.info(f"Loading files using ensmallen")
+    logging.info(f"Loading files using ensmallen, path={edge_file.name}")
     g = Graph.from_csv(
         edge_path=edge_file.name,
         edge_list_separator="\t",

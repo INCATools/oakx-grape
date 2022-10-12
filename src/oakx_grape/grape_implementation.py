@@ -1,9 +1,8 @@
-import csv
+"""Plugin for ensmallen/grape."""
 import inspect
 import logging
-import tempfile
 from dataclasses import dataclass
-from typing import Callable, ClassVar, Iterable, Iterator, List, Mapping, Optional, Tuple, Union
+from typing import Callable, ClassVar, Iterable, Iterator, List, Mapping, Optional, Tuple
 
 from embiggen.edge_prediction.edge_prediction_ensmallen.perceptron import PerceptronEdgePrediction
 from embiggen.embedders.ensmallen_embedders.first_order_line import FirstOrderLINEEnsmallen
@@ -62,7 +61,9 @@ class GrapeImplementation(
     DifferInterface,
 ):
     """
-    An experimental wrapper for Grape/Ensmallen
+    An experimental wrapper for Grape/Ensmallen.
+
+    This is intended primarily for semsim.
     """
 
     graph: Graph = None
@@ -131,7 +132,7 @@ class GrapeImplementation(
 
     def map_biolink_predicate(self, predicate: PRED_CURIE) -> PRED_CURIE:
         """
-        Maps from biolink (use in KGX) to RO/OWL.
+        Map from biolink (use in KGX) to RO/OWL.
 
         Note this is only necessary for graphs from kgx obo
 
@@ -145,7 +146,7 @@ class GrapeImplementation(
 
     def _load_graph_from_adapter(self, oi: BasicOntologyInterface):
         self.graph = load_graph_from_adapter(oi)
-        self.transposed_graph = g.to_transposed()
+        self.transposed_graph = self.graph.to_transposed()
 
     def _graph_pair_by_predicates(self, predicates: List[PRED_CURIE] = None):
         # note the size of the cache will grow with each distinct combination of
@@ -167,6 +168,7 @@ class GrapeImplementation(
         return filtered_graph, filtered_transposed_graph
 
     def entities(self, filter_obsoletes=True, owl_type=None) -> Iterable[CURIE]:
+        """Implement OAK interface."""
         g = self.graph
         for n_id in g.get_node_ids():
             yield g.get_node_name_from_node_id(n_id)
@@ -174,6 +176,7 @@ class GrapeImplementation(
     def outgoing_relationships(
         self, curie: CURIE, predicates: List[PRED_CURIE] = None
     ) -> Iterator[Tuple[PRED_CURIE, CURIE]]:
+        """Implement OAK interface."""
         g = self.graph
         curie_id = g.get_node_id_from_node_name(curie)
         for object_id in g.get_neighbour_node_ids_from_node_id(curie_id):
@@ -186,11 +189,13 @@ class GrapeImplementation(
             yield pred, obj
 
     def outgoing_relationship_map(self, *args, **kwargs) -> RELATIONSHIP_MAP:
+        """Implement OAK interface."""
         return pairs_as_dict(self.outgoing_relationships(*args, **kwargs))
 
     def incoming_relationships(
         self, curie: CURIE, predicates: List[PRED_CURIE] = None
     ) -> Iterator[Tuple[PRED_CURIE, CURIE]]:
+        """Implement OAK interface."""
         g = self.transposed_graph
         curie_id = g.get_node_id_from_node_name(curie)
         for subject_id in g.get_neighbour_node_ids_from_node_id(curie_id):
@@ -203,26 +208,8 @@ class GrapeImplementation(
             yield pred, subj
 
     def incoming_relationship_map(self, *args, **kwargs) -> RELATIONSHIP_MAP:
+        """Implement OAK interface."""
         return pairs_as_dict(self.incoming_relationships(*args, **kwargs))
-
-    # it seems ensmallen does not have this;
-    # instead we will delegate
-    def TODO_ancestors(
-        self,
-        start_curies: Union[CURIE, List[CURIE]],
-        predicates: List[PRED_CURIE] = None,
-        reflexive=True,
-    ) -> Iterable[CURIE]:
-        g = self.graph
-        anc_ids = {}
-        if not isinstance(start_curies, list):
-            start_curies = [start_curies]
-        for curie in start_curies:
-            curie_id = g.get_node_id_from_node_name(curie)
-            # TODO: find the right ensmallen method
-            anc_ids.update(g.get_successors_from_node_id(curie_id))
-        for anc_id in anc_ids:
-            yield g.get_node_name_from_node_id(anc_id)
 
     # -- SemSim methods --
 
@@ -234,11 +221,13 @@ class GrapeImplementation(
         subject_ancestors: List[CURIE] = None,
         object_ancestors: List[CURIE] = None,
     ) -> TermPairwiseSimilarity:
+        """Implement OAK interface."""
         if predicates:
-            raise ValueError(f"For now can only use hardcoded ensmallen predicates")
+            raise ValueError("For now can only use hardcoded ensmallen predicates")
         raise NotImplementedError
 
     def predict(self) -> Iterator[Tuple[float, CURIE, Optional[PRED_CURIE], CURIE]]:
+        """Implement OAK interface."""
         embedding = FirstOrderLINEEnsmallen().fit_transform(self.graph)
         model = PerceptronEdgePrediction(
             edge_features=None,

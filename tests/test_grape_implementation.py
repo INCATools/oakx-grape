@@ -8,6 +8,7 @@ from tests import MORPHOLOGY, SHAPE
 
 
 class TestGrapeImplementation(unittest.TestCase):
+    """tests grape plugin."""
     def setUp(self) -> None:
         self.oi = get_implementation_from_shorthand("grape:sqlite:obo:pato")
 
@@ -21,14 +22,12 @@ class TestGrapeImplementation(unittest.TestCase):
 
     # @unittest.skip("https://github.com/AnacletoLAB/ensmallen/issues/175")
     def test_labels(self):
-        """
-        Test basic functionality
-        """
+        """Basic tests."""
         self.assertEqual("shape", self.oi.label(SHAPE))
 
     def test_edges(self):
         """
-        Test basic functionality?
+        Test retrieval of edges..
 
         We use a basic edge from PATO
 
@@ -45,9 +44,7 @@ class TestGrapeImplementation(unittest.TestCase):
 
     # @unittest.skip("Need ensmallen help")
     def test_ancestors(self):
-        """
-        Test ability to traverse from a node to ancestors
-        """
+        """Test ability to traverse from a node to ancestors."""
         ancs = list(self.oi.ancestors(SHAPE))
         for a in ancs:
             print(f"{a}")
