@@ -1,5 +1,5 @@
 {
-  "template": "/Users/cjm/repos/oakx-plugin-cookiecutter",
+  "template": "https://github.com/INCATools/oakx-plugin-cookiecutter",
   "commit": "0e673650064ed50f465c91aa40cb160bdff37e27",
   "checkout": null,
   "context": {
@@ -15,7 +15,7 @@
       "author": "Harshad Hegde <hhegde@lbl.gov>",
       "github_token_for_doc_deployment": "GH_TOKEN",
       "github_token_for_pypi_deployment": "PYPI_TOKEN",
-      "_template": "/Users/cjm/repos/oakx-plugin-cookiecutter"
+      "_template": "https://github.com/INCATools/oakx-plugin-cookiecutter"
     }
   },
   "directory": null
