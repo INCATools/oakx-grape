@@ -12,8 +12,8 @@ class TestGrapeImplementation2(unittest.TestCase):
 
     def setUp(self) -> None:
         self.oi = get_implementation_from_shorthand("grape:sqlite:obo:pato")
-        #self.oi = get_implementation_from_shorthand("grape:kgobo:pato")
-        #self.oi = get_implementation_from_shorthand("grape:pato")
+        # self.oi = get_implementation_from_shorthand("grape:kgobo:pato")
+        # self.oi = get_implementation_from_shorthand("grape:pato")
         # self.oi = GrapeImplementation(OntologyResource("PATO"))
 
     def test_entities(self):
@@ -56,5 +56,3 @@ class TestGrapeImplementation2(unittest.TestCase):
         ancs = list(self.oi.ancestors(SHAPE))
         for a in ancs:
             print(f"{a}")
-
-

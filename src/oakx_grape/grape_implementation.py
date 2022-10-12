@@ -2,7 +2,7 @@ import csv
 import inspect
 import tempfile
 from dataclasses import dataclass
-from typing import Callable, ClassVar, Iterable, Iterator, List, Optional, Tuple, Union, Mapping
+from typing import Callable, ClassVar, Iterable, Iterator, List, Mapping, Optional, Tuple, Union
 
 from ensmallen import Graph
 from oaklib import BasicOntologyInterface, OntologyResource
@@ -20,13 +20,13 @@ from oaklib.interfaces.relation_graph_interface import RelationGraphInterface
 from oaklib.interfaces.search_interface import SearchInterface
 from oaklib.interfaces.semsim_interface import SemanticSimilarityInterface
 from oaklib.interfaces.validator_interface import ValidatorInterface
-
 from oaklib.types import CURIE, PRED_CURIE
 
 # Mappings between biolink predicates and RO/OWL/RDF
 # This won't be necessary once we load the ensmallen graph directly
 # TODO: move this to OAK-central
 from oaklib.utilities.basic_utils import pairs_as_dict
+
 from oakx_grape.loader import load_graph_from_adapter
 
 PREDICATE_MAP = {"biolink:subclass_of": IS_A}
@@ -46,16 +46,18 @@ def get_graph_function_by_name(name: str, module="kgobo") -> Callable:
 
 
 @dataclass
-class GrapeImplementation(RelationGraphInterface,
-                          OboGraphInterface,
-                          ValidatorInterface,
-                          SearchInterface,
-                          SubsetterInterface,
-                          MappingProviderInterface,
-                          PatcherInterface,
-                          SemanticSimilarityInterface,
-                          MetadataInterface,
-                          DifferInterface,):
+class GrapeImplementation(
+    RelationGraphInterface,
+    OboGraphInterface,
+    ValidatorInterface,
+    SearchInterface,
+    SubsetterInterface,
+    MappingProviderInterface,
+    PatcherInterface,
+    SemanticSimilarityInterface,
+    MetadataInterface,
+    DifferInterface,
+):
     """
     An experimental wrapper for Grape/Ensmallen
     """
@@ -108,11 +110,12 @@ class GrapeImplementation(RelationGraphInterface,
             self.transposed_graph = self.graph.to_transposed()
         else:
             from oaklib.selector import get_implementation_from_shorthand
+
             inner_oi = get_implementation_from_shorthand(slug)
             print(f"OI={inner_oi}")
             self.wrapped_adapter = inner_oi
             self.graph = load_graph_from_adapter(inner_oi)
-            #self.transposed_graph = load_graph_from_adapter(inner_oi, transpose=True)
+            # self.transposed_graph = load_graph_from_adapter(inner_oi, transpose=True)
             self.transposed_graph = self.graph.to_transposed()
         # delegation magic
         methods = dict(inspect.getmembers(self.wrapped_adapter))
