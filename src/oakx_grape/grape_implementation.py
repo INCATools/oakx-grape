@@ -1,9 +1,12 @@
 import csv
 import inspect
+import logging
 import tempfile
 from dataclasses import dataclass
 from typing import Callable, ClassVar, Iterable, Iterator, List, Optional, Tuple, Union, Mapping
 
+from embiggen.edge_prediction.edge_prediction_ensmallen.perceptron import PerceptronEdgePrediction
+from embiggen.embedders.ensmallen_embedders.first_order_line import FirstOrderLINEEnsmallen
 from ensmallen import Graph
 from oaklib import BasicOntologyInterface, OntologyResource
 from oaklib.datamodels.similarity import TermPairwiseSimilarity
@@ -78,13 +81,14 @@ class GrapeImplementation(RelationGraphInterface,
     """An OAK implementation that takes care of everything that ensmallen cannot handle"""
 
     delegated_methods: ClassVar[List[str]] = [
-        "label",
-        "labels",
-        "curie_to_uri",
-        "uri_to_curie",
-        "ontologies",
-        "obsoletes",
-        "basic_search",
+        BasicOntologyInterface.label,
+        BasicOntologyInterface.labels,
+        BasicOntologyInterface.curie_to_uri,
+        BasicOntologyInterface.uri_to_curie,
+        BasicOntologyInterface.ontologies,
+        BasicOntologyInterface.obsoletes,
+        SearchInterface.basic_search,
+        OboGraphInterface.node,
     ]
     """all methods that should be delegated to wrapped_adapter"""
 
@@ -93,31 +97,34 @@ class GrapeImplementation(RelationGraphInterface,
         # we delegate to two different implementations
         # 1. an ensmallen_graph
         # 2. a sqlite implementation
-        # For now we load both from different sources
-        # (1: kgobo; 2: bbop-sqlite).
-        # This is a dumb temporary measure for testing.
-        # In future we will first use the wrapped adapter to to get the graph,
-        # and communicate it to graph via something like dumping files then loading
+        # The selector is one of two forms, indicating whether
+        # the grape graph should come directly from KGOBO,
+        # or whether it should come from the OAK ontology
         if slug.startswith("kgobo:"):
+            # fetch a pre-published ontology simultaneously
+            # from kgobo and semsql. Note: there is no guarantee
+            # these are in sync, so problems may arise
             slug = slug.replace("kgobo:", "")
             self.uses_biolink = True
+            logging.info(f"Fetching {slug} from KGOBO")
             f = get_graph_function_by_name(slug.upper())
             if self.wrapped_adapter is None:
+                logging.info(f"Fetching {slug} from SemSQL")
                 self.wrapped_adapter = SqlImplementation(OntologyResource(f"obo:{slug.lower()}"))
             self.graph = f(directed=True)
-            self.transposed_graph = self.graph.to_transposed()
         else:
+            # build the grape graph from the OAK ontology
             from oaklib.selector import get_implementation_from_shorthand
+            logging.info(f"Wrapping an existing OAK implementation to fetch {slug}")
             inner_oi = get_implementation_from_shorthand(slug)
-            print(f"OI={inner_oi}")
             self.wrapped_adapter = inner_oi
             self.graph = load_graph_from_adapter(inner_oi)
-            #self.transposed_graph = load_graph_from_adapter(inner_oi, transpose=True)
-            self.transposed_graph = self.graph.to_transposed()
+        self.transposed_graph = self.graph.to_transposed()
         # delegation magic
         methods = dict(inspect.getmembers(self.wrapped_adapter))
         for m in self.delegated_methods:
-            setattr(GrapeImplementation, m, methods[m])
+            mn = m if isinstance(m, str) else m.__name__
+            setattr(GrapeImplementation, mn, methods[mn])
 
     def map_biolink_predicate(self, predicate: PRED_CURIE) -> PRED_CURIE:
         """
@@ -192,7 +199,12 @@ class GrapeImplementation(RelationGraphInterface,
                 continue
             yield pred, subj
 
-    def ancestors(
+    def incoming_relationship_map(self, *args, **kwargs) -> RELATIONSHIP_MAP:
+        return pairs_as_dict(self.incoming_relationships(*args, **kwargs))
+
+    # it seems ensmallen does not have this;
+    # instead we will delegate
+    def TODO_ancestors(
         self,
         start_curies: Union[CURIE, List[CURIE]],
         predicates: List[PRED_CURIE] = None,
@@ -222,3 +234,22 @@ class GrapeImplementation(RelationGraphInterface,
         if predicates:
             raise ValueError(f"For now can only use hardcoded ensmallen predicates")
         raise NotImplementedError
+
+    def predict(self) -> Iterator[Tuple[float, CURIE, Optional[PRED_CURIE], CURIE]]:
+        embedding = FirstOrderLINEEnsmallen().fit_transform(self.graph)
+        model = PerceptronEdgePrediction(
+            edge_features=None,
+            number_of_edges_per_mini_batch=32,
+            edge_embeddings="CosineSimilarity"
+        )
+        model.fit(graph=self.graph, node_features=embedding)
+        df = model.predict_proba(
+            graph=self.graph,
+            node_features=embedding,
+            return_predictions_dataframe=True
+        )
+        for _, row in df.iterrows():
+            yield row["predictions"], row["sources"], None, row["destinations"]
+
+
+

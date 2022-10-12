@@ -7,14 +7,10 @@ from oaklib.selector import get_implementation_from_shorthand
 from tests import MORPHOLOGY, SHAPE
 
 
-class TestGrapeImplementation2(unittest.TestCase):
-    """TEMP until https://github.com/INCATools/ontology-access-kit/issues/250 fixes."""
+class TestGrapeImplementation(unittest.TestCase):
 
     def setUp(self) -> None:
         self.oi = get_implementation_from_shorthand("grape:sqlite:obo:pato")
-        #self.oi = get_implementation_from_shorthand("grape:kgobo:pato")
-        #self.oi = get_implementation_from_shorthand("grape:pato")
-        # self.oi = GrapeImplementation(OntologyResource("PATO"))
 
     def test_entities(self):
         """
@@ -48,7 +44,7 @@ class TestGrapeImplementation2(unittest.TestCase):
             print(f"{pred} {subj}")
         self.assertIn((IS_A, SHAPE), rels)
 
-    @unittest.skip("Need ensmallen help")
+    #@unittest.skip("Need ensmallen help")
     def test_ancestors(self):
         """
         Test ability to traverse from a node to ancestors
