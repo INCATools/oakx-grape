@@ -2,8 +2,8 @@ import csv
 import logging
 import tempfile
 
-from oaklib import BasicOntologyInterface
 from ensmallen import Graph
+from oaklib import BasicOntologyInterface
 
 SUBJECT_COLUMN = "subject"
 PREDICATE_COLUMN = "predicate"
@@ -16,8 +16,8 @@ def load_graph_from_adapter(oi: BasicOntologyInterface, transpose=False, name="U
     Creates an ensmallen graph from an OAK ontology interface
     """
     # note: this may be replaced by a kgx writer in oak core
-    node_file = tempfile.NamedTemporaryFile("w", newline="", encoding='utf-8', delete=True)
-    edge_file = tempfile.NamedTemporaryFile("w", newline="", encoding='utf-8', delete=True)
+    node_file = tempfile.NamedTemporaryFile("w", newline="", encoding="utf-8", delete=True)
+    edge_file = tempfile.NamedTemporaryFile("w", newline="", encoding="utf-8", delete=True)
     logging.info(f"Writing to temp KGX-style node file: {node_file.name}")
     # we avoid using DictWriter as it produces CRLFs which are not parsed by ensmallen
     entities = list(oi.entities(filter_obsoletes=True))

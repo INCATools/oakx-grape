@@ -8,7 +8,6 @@ from tests import MORPHOLOGY, SHAPE
 
 
 class TestGrapeImplementation(unittest.TestCase):
-
     def setUp(self) -> None:
         self.oi = get_implementation_from_shorthand("grape:sqlite:obo:pato")
 
@@ -44,7 +43,7 @@ class TestGrapeImplementation(unittest.TestCase):
             print(f"{pred} {subj}")
         self.assertIn((IS_A, SHAPE), rels)
 
-    #@unittest.skip("Need ensmallen help")
+    # @unittest.skip("Need ensmallen help")
     def test_ancestors(self):
         """
         Test ability to traverse from a node to ancestors
@@ -52,5 +51,3 @@ class TestGrapeImplementation(unittest.TestCase):
         ancs = list(self.oi.ancestors(SHAPE))
         for a in ancs:
             print(f"{a}")
-
-

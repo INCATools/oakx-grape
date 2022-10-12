@@ -3,7 +3,7 @@ import inspect
 import logging
 import tempfile
 from dataclasses import dataclass
-from typing import Callable, ClassVar, Iterable, Iterator, List, Optional, Tuple, Union, Mapping
+from typing import Callable, ClassVar, Iterable, Iterator, List, Mapping, Optional, Tuple, Union
 
 from embiggen.edge_prediction.edge_prediction_ensmallen.perceptron import PerceptronEdgePrediction
 from embiggen.embedders.ensmallen_embedders.first_order_line import FirstOrderLINEEnsmallen
@@ -23,13 +23,13 @@ from oaklib.interfaces.relation_graph_interface import RelationGraphInterface
 from oaklib.interfaces.search_interface import SearchInterface
 from oaklib.interfaces.semsim_interface import SemanticSimilarityInterface
 from oaklib.interfaces.validator_interface import ValidatorInterface
-
 from oaklib.types import CURIE, PRED_CURIE
 
 # Mappings between biolink predicates and RO/OWL/RDF
 # This won't be necessary once we load the ensmallen graph directly
 # TODO: move this to OAK-central
 from oaklib.utilities.basic_utils import pairs_as_dict
+
 from oakx_grape.loader import load_graph_from_adapter
 
 PREDICATE_MAP = {"biolink:subclass_of": IS_A}
@@ -49,16 +49,18 @@ def get_graph_function_by_name(name: str, module="kgobo") -> Callable:
 
 
 @dataclass
-class GrapeImplementation(RelationGraphInterface,
-                          OboGraphInterface,
-                          ValidatorInterface,
-                          SearchInterface,
-                          SubsetterInterface,
-                          MappingProviderInterface,
-                          PatcherInterface,
-                          SemanticSimilarityInterface,
-                          MetadataInterface,
-                          DifferInterface,):
+class GrapeImplementation(
+    RelationGraphInterface,
+    OboGraphInterface,
+    ValidatorInterface,
+    SearchInterface,
+    SubsetterInterface,
+    MappingProviderInterface,
+    PatcherInterface,
+    SemanticSimilarityInterface,
+    MetadataInterface,
+    DifferInterface,
+):
     """
     An experimental wrapper for Grape/Ensmallen
     """
@@ -115,6 +117,7 @@ class GrapeImplementation(RelationGraphInterface,
         else:
             # build the grape graph from the OAK ontology
             from oaklib.selector import get_implementation_from_shorthand
+
             logging.info(f"Wrapping an existing OAK implementation to fetch {slug}")
             inner_oi = get_implementation_from_shorthand(slug)
             self.wrapped_adapter = inner_oi
@@ -240,16 +243,11 @@ class GrapeImplementation(RelationGraphInterface,
         model = PerceptronEdgePrediction(
             edge_features=None,
             number_of_edges_per_mini_batch=32,
-            edge_embeddings="CosineSimilarity"
+            edge_embeddings="CosineSimilarity",
         )
         model.fit(graph=self.graph, node_features=embedding)
         df = model.predict_proba(
-            graph=self.graph,
-            node_features=embedding,
-            return_predictions_dataframe=True
+            graph=self.graph, node_features=embedding, return_predictions_dataframe=True
         )
         for _, row in df.iterrows():
             yield row["predictions"], row["sources"], None, row["destinations"]
-
-
-
