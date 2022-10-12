@@ -10,7 +10,8 @@ class TestGrapeImplementation(unittest.TestCase):
     """Test GrapeImplementation."""
 
     def test_load(self):
-        manually_loaded_homosapiens = Graph.from_csv(
+        """Test loading from ensmallen (temp)."""
+        Graph.from_csv(
             # Edges related parameters
             # The path to the edges list tsv
             edge_path=str(TEST_EDGES_TSV),

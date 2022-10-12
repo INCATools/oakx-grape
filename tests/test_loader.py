@@ -8,7 +8,10 @@ from tests import TEST_DB
 
 
 class TestLoader(unittest.TestCase):
+    """Tester for loading files."""
+
     def test_loader(self):
+        """Test the loader."""
         core_oi = get_implementation_from_shorthand(f"sqlite:{TEST_DB}")
         graph = load_graph_from_adapter(core_oi)
         tg = graph.to_transposed()

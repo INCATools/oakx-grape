@@ -9,13 +9,13 @@ from tests import MORPHOLOGY, SHAPE
 
 class TestGrapeImplementation(unittest.TestCase):
     """tests grape plugin."""
+
     def setUp(self) -> None:
+        """Set up implementation."""
         self.oi = get_implementation_from_shorthand("grape:sqlite:obo:pato")
 
     def test_entities(self):
-        """
-        Test basic functionality
-        """
+        """Test basic functionality."""
         curies = list(self.oi.entities())
         self.assertIn(SHAPE, curies)
         self.assertIn(MORPHOLOGY, curies)
