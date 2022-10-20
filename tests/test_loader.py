@@ -2,14 +2,16 @@
 import unittest
 
 from oaklib.selector import get_implementation_from_shorthand
-from oakx_grape.loader import load_graph_from_adapter
 
+from oakx_grape.loader import load_graph_from_adapter
 from tests import TEST_DB
 
 
 class TestLoader(unittest.TestCase):
+    """Tester for loading files."""
 
     def test_loader(self):
+        """Test the loader."""
         core_oi = get_implementation_from_shorthand(f"sqlite:{TEST_DB}")
         graph = load_graph_from_adapter(core_oi)
         tg = graph.to_transposed()
@@ -21,7 +23,5 @@ class TestLoader(unittest.TestCase):
                 edge_id = tg.get_edge_id_from_node_ids(e_id, subject_id)
                 # why doesn't this work?
                 pred = tg.get_edge_type_name_from_edge_id(edge_id)
-                #pred = None
+                # pred = None
                 print(f"  {subj} {pred} [{edge_id}] {e}")
-
-
