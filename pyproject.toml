@@ -34,6 +34,7 @@ docs = [
     "sphinx-rtd-theme",
     "sphinx-autodoc-typehints",
     "sphinx-click",
+    "furo"
     ]
 
 [tool.poetry.plugins."oaklib.plugins"]
