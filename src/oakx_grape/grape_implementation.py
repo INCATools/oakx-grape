@@ -2,8 +2,7 @@
 import inspect
 import logging
 from dataclasses import dataclass
-from typing import Callable, ClassVar, Iterable, Iterator, List, Mapping, Optional, Tuple, Dict
-from typing_extensions import TypedDict
+from typing import Callable, ClassVar, Dict, Iterable, Iterator, List, Optional, Tuple
 
 from embiggen.edge_prediction.edge_prediction_ensmallen.perceptron import PerceptronEdgePrediction
 from embiggen.embedders.ensmallen_embedders.first_order_line import FirstOrderLINEEnsmallen
