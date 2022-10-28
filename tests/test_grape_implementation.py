@@ -56,4 +56,3 @@ class TestGrapeImplementation(unittest.TestCase):
     # wrap oak representation of graph
     # make tsv from this
     # instantiate grape using from_csv
-
