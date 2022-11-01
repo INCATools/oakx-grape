@@ -1,7 +1,6 @@
 {
-  "template": "/Users/cjm/repos/oakx-plugin-cookiecutter",
-  "commit": "0e673650064ed50f465c91aa40cb160bdff37e27",
-  "checkout": null,
+  "template": "https://github.com/INCATools/oakx-plugin-cookiecutter",
+  "commit": "ac70b1ea39d096031ef078e92fef6cecff7d8b62",
   "context": {
     "cookiecutter": {
       "project_name": "oakx-grape",
@@ -12,10 +11,10 @@
       "project_description": "Grape wrapper for OAK",
       "file_name": "main",
       "greeting_recipient": "World",
-      "author": "Harshad Hegde <hhegde@lbl.gov>",
+      "author": "Harshad Hegde <hhegde@lbl.gov> Justin Reese <justaddcoffee@gmail.com> Harry Caufield <jhc@lbl.gov> Chris Mungall <cjmungall@lbl.gov>",
       "github_token_for_doc_deployment": "GH_TOKEN",
       "github_token_for_pypi_deployment": "PYPI_TOKEN",
-      "_template": "/Users/cjm/repos/oakx-plugin-cookiecutter"
+      "_template": "https://github.com/INCATools/oakx-plugin-cookiecutter"
     }
   },
   "directory": null
