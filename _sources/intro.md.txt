@@ -39,6 +39,6 @@ https://github.com/INCATools/ontology-access-kit/blob/main/notebooks/Monarch/Phe
 
 With the semsim part handled by OAK
 
-# Acknowledgements
+## Acknowledgements
  
 This [cookiecutter](https://cookiecutter.readthedocs.io/en/stable/README.html) project was developed from the [oakx-plugin-cookiecutter](https://github.com/INCATools/oakx-plugin-cookiecutter) template and will be kept up-to-date using [cruft](https://cruft.github.io/cruft/).
