@@ -7,7 +7,7 @@ import os
 import re
 import sys
 from datetime import date
-from oakx-grape import __version__
+from oakx_grape import __version__
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
