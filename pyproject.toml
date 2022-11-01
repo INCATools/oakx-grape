@@ -7,8 +7,8 @@ license = "BSD 3"
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.9"
-bioregistry = "0.5.134"
+python = ">=3.9,<3.12"
+bioregistry = "^0.5.136"
 tox = "^3.25.1"
 click = "^8.1.3"
 importlib = "^1.0.4"
