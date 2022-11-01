@@ -25,6 +25,7 @@ extensions = [
     "sphinx_rtd_theme",
     "sphinx_click",
     "sphinx_autodoc_typehints",
+    "myst_parser"
 ]
 
 # generate autosummary pages

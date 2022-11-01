@@ -1,6 +1,6 @@
 {
   "template": "https://github.com/INCATools/oakx-plugin-cookiecutter",
-  "commit": "c0ca0e3393d47de23d9db8afc5bb0d0105436dd1",
+  "commit": "ac70b1ea39d096031ef078e92fef6cecff7d8b62",
   "context": {
     "cookiecutter": {
       "project_name": "oakx-grape",
@@ -17,5 +17,6 @@
       "_template": "https://github.com/INCATools/oakx-plugin-cookiecutter"
     }
   },
-  "directory": null
+  "directory": null,
+  "checkout": null
 }
