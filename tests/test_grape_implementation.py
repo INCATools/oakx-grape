@@ -48,3 +48,11 @@ class TestGrapeImplementation(unittest.TestCase):
         ancs = list(self.oi.ancestors(SHAPE))
         for a in ancs:
             print(f"{a}")
+
+    # TODO: write simple test to verify one label (in the OAK sense, e.g. a description of a class or
+    # something) - this will exercise the code to keep track of node properties, which will require
+    # harmonizing the OAK and Grape representations of the ontology
+
+    # wrap oak representation of graph
+    # make tsv from this
+    # instantiate grape using from_csv

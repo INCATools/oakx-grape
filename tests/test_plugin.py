@@ -1,7 +1,7 @@
 """GrapeImplementation test."""
 import unittest
 
-from oaklib.implementations import implementation_resolver
+from oaklib.implementations import get_implementation_resolver
 from oaklib.selector import get_resource_from_shorthand
 
 from tests import TEST_OWL
@@ -15,6 +15,7 @@ class TestGrapeImplementation(unittest.TestCase):
         # This needs to be imported here to avoid circular imports
         from oakx_grape.grape_implementation import GrapeImplementation
 
+        implementation_resolver = get_implementation_resolver()
         resolved = implementation_resolver.lookup("grape")
         self.assertEqual(resolved, GrapeImplementation)
         slug = f"grape:{TEST_OWL}"

@@ -2,7 +2,7 @@
 import inspect
 import logging
 from dataclasses import dataclass
-from typing import Callable, ClassVar, Iterable, Iterator, List, Mapping, Optional, Tuple
+from typing import Callable, ClassVar, Dict, Iterable, Iterator, List, Optional, Tuple
 
 from embiggen.edge_prediction.edge_prediction_ensmallen.perceptron import PerceptronEdgePrediction
 from embiggen.embedders.ensmallen_embedders.first_order_line import FirstOrderLINEEnsmallen
@@ -76,9 +76,9 @@ class GrapeImplementation(
     so we maintain two graphs
     """
 
-    uses_biolink: bool = None
+    uses_biolink: Optional[bool] = None
 
-    _cached_graphs_by_predicates: Mapping[Tuple, GRAPH_PAIR] = None
+    _cached_graphs_by_predicates: Optional[Dict[Tuple, GRAPH_PAIR]] = None
 
     wrapped_adapter: BasicOntologyInterface = None
     """An OAK implementation that takes care of everything that ensmallen cannot handle"""
