@@ -9,7 +9,7 @@
       "implementation": "GrapeImplementation",
       "implementation_name": "grape_implementation",
       "project_description": "Grape wrapper for OAK",
-      "file_name": "main",
+      "file_name": "grape_implementation",
       "greeting_recipient": "World",
       "author": "Harshad Hegde <hhegde@lbl.gov> Justin Reese <justaddcoffee@gmail.com> Harry Caufield <jhc@lbl.gov> Chris Mungall <cjmungall@lbl.gov>",
       "github_token_for_doc_deployment": "GH_TOKEN",
