@@ -22,7 +22,7 @@ release = __version__
 extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.githubpages",
-    "sphinx_rtd_theme",
+    "furo",
     "sphinx_click",
     "sphinx_autodoc_typehints",
     "myst_parser"
