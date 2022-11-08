@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="oakx_grape" href="modules.html" /><link rel="prev" title="Welcome to oakx-grape’s documentation!" href="index.html" />
 
     <meta name="generator" content="sphinx-5.3.0, furo 2022.09.29"/>
-        <title>Introduction - oakx-grape 0.1.0 documentation</title>
+        <title>oakx-grape - oakx-grape 0.1.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=d81277517bee4d6b0349d71bb2661d4890b5617c" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?digest=30d1aed668e5c3a91c3e3bf6a60b675221979f0e" />
@@ -156,7 +156,7 @@
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
   <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
-<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Introduction</a></li>
+<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">oakx-grape</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="modules.html">oakx_grape</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="oakx_grape.html">oakx_grape package</a></li>
 </ul>
@@ -195,16 +195,36 @@
           </label>
         </div>
         <article role="main">
-          <section id="introduction">
-<h1>Introduction<a class="headerlink" href="#introduction" title="Permalink to this heading">#</a></h1>
+          <section id="oakx-grape">
+<h1>oakx-grape<a class="headerlink" href="#oakx-grape" title="Permalink to this heading">#</a></h1>
 <p>🌳 🍇 Grape wrapper for OAK 🌳 🍇</p>
 <p><strong>ALPHA</strong></p>
 <section id="usage">
 <h2>Usage<a class="headerlink" href="#usage" title="Permalink to this heading">#</a></h2>
+<p>Macbook users with M1 processor need to do a few extra steps as follows:</p>
+<ul class="simple">
+<li><p>Download <a class="reference external" href="https://www.anaconda.com/products/distribution">Anaconda</a>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">conda</span> <span class="pre">create</span> <span class="pre">--name</span> <span class="pre">oakx-grape-env</span> <span class="pre">python=3.9</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">conda</span> <span class="pre">activate</span> <span class="pre">oakx-grape-env</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">poetry</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">poetry</span> <span class="pre">install</span></code></p></li>
+</ul>
+<p>The steps below are common to everyone.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">oakx</span><span class="o">-</span><span class="n">grape</span>
-<span class="n">runoak</span> <span class="o">-</span><span class="n">i</span> <span class="n">grape</span><span class="p">:</span><span class="n">sqlite</span><span class="p">:</span><span class="n">obo</span><span class="p">:</span><span class="n">pato</span> <span class="n">relationships</span> <span class="o">--</span><span class="n">direction</span> <span class="n">both</span> <span class="n">shape</span>
+<span class="n">poetry</span> <span class="n">run</span> <span class="n">runoak</span> <span class="o">-</span><span class="n">i</span> <span class="n">grape</span><span class="p">:</span><span class="n">sqlite</span><span class="p">:</span><span class="n">obo</span><span class="p">:</span><span class="n">pato</span> <span class="n">relationships</span> <span class="o">--</span><span class="n">direction</span> <span class="n">both</span> <span class="n">shape</span>
 </pre></div>
 </div>
+<section id="install-nvm-npm">
+<h3>Install NVM + NPM<a class="headerlink" href="#install-nvm-npm" title="Permalink to this heading">#</a></h3>
+<p>These <a class="reference external" href="https://dev.to/ms314006/how-to-install-npm-through-nvm-node-version-manager-5gif">instructions</a> help setup nvm and npm on one’s system.</p>
+</section>
+<section id="install-graphviz-and-obographviz">
+<h3>Install GraphViz and OboGraphViz<a class="headerlink" href="#install-graphviz-and-obographviz" title="Permalink to this heading">#</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">brew</span> <span class="pre">install</span> <span class="pre">graphviz</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">npm</span> <span class="pre">install</span> <span class="pre">-g</span> <span class="pre">obographviz</span></code></p></li>
+</ul>
+</section>
 </section>
 <section id="how-it-works">
 <h2>How it works<a class="headerlink" href="#how-it-works" title="Permalink to this heading">#</a></h2>
@@ -293,8 +313,12 @@
         <div class="toc-tree-container">
           <div class="toc-tree">
             <ul>
-<li><a class="reference internal" href="#">Introduction</a><ul>
-<li><a class="reference internal" href="#usage">Usage</a></li>
+<li><a class="reference internal" href="#">oakx-grape</a><ul>
+<li><a class="reference internal" href="#usage">Usage</a><ul>
+<li><a class="reference internal" href="#install-nvm-npm">Install NVM + NPM</a></li>
+<li><a class="reference internal" href="#install-graphviz-and-obographviz">Install GraphViz and OboGraphViz</a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#how-it-works">How it works</a></li>
 <li><a class="reference internal" href="#acknowledgements">Acknowledgements</a></li>
 </ul>
