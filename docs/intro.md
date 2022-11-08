@@ -18,6 +18,12 @@ The steps below are common to everyone.
 pip install oakx-grape
 poetry run runoak -i grape:sqlite:obo:pato relationships --direction both shape
 ```
+### Install NVM + NPM
+These [instructions](https://dev.to/ms314006/how-to-install-npm-through-nvm-node-version-manager-5gif) help setup nvm and npm on one's system.
+
+### Install GraphViz and OboGraphViz
+- `brew install graphviz`
+- `npm install -g obographviz`
 
 ## How it works
 
