@@ -5,11 +5,25 @@
 **ALPHA**
 
 ## Usage
+Macbook users with M1 processor need to do a few extra steps as follows:
 
+ - Download [Anaconda](https://www.anaconda.com/products/distribution).
+ - `conda create --name oakx-grape-env python=3.9`
+ - `conda activate oakx-grape-env`
+ - `pip install poetry`
+ - `poetry install`
+
+The steps below are common to everyone.
 ```
 pip install oakx-grape
-runoak -i grape:sqlite:obo:pato relationships --direction both shape
+poetry run runoak -i grape:sqlite:obo:pato relationships --direction both shape
 ```
+### Install NVM + NPM
+These [instructions](https://dev.to/ms314006/how-to-install-npm-through-nvm-node-version-manager-5gif) help setup nvm and npm on one's system.
+
+### Install GraphViz and OboGraphViz
+- `brew install graphviz`
+- `npm install -g obographviz`
 
 ## How it works
 
