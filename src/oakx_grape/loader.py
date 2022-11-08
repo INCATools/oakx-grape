@@ -23,19 +23,27 @@ def load_graph_from_adapter(oi: BasicOntologyInterface, transpose=False, name="U
     edge_file = tempfile.NamedTemporaryFile("w", newline="", encoding="utf-8", delete=True)
     logging.info(f"Writing to temp KGX-style node file: {node_file.name}")
     # we avoid using DictWriter as it produces CRLFs which are not parsed by ensmallen
-    entities = list(oi.entities(filter_obsoletes=True))
-    node_file.write(f"{ID_COLUMN}\n")
-    for e in entities:
-        node_file.write(e)
-        node_file.write("\n")
+    entities = set(list(oi.entities(filter_obsoletes=False)))
+
     logging.info(f"Writing to temp KGX-style edge file:{edge_file.name}")
     edge_file.writelines(f"{SUBJECT_COLUMN}\t{PREDICATE_COLUMN}\t{OBJECT_COLUMN}\n")
     for s, p, o in oi.relationships():
-        if s in entities and o in entities and s != o:
+        if (
+            s != o
+            and s is not None
+            and o is not None
+            and not s.startswith("_")
+            and not o.startswith("_")
+            and o in entities
+        ):
             if transpose:
                 edge_file.write(f"{o}\t{p}\t{s}\n")
             else:
                 edge_file.write(f"{s}\t{p}\t{o}\n")
+    node_file.write(f"{ID_COLUMN}\n")
+    for e in entities:
+        node_file.write(e)
+        node_file.write("\n")
     node_file.seek(0)
     edge_file.seek(0)
     logging.info(f"Loading files using ensmallen, path={edge_file.name}")
