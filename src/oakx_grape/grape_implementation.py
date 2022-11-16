@@ -1,12 +1,12 @@
 """Plugin for ensmallen/grape."""
 import inspect
 import logging
+from grape import *
 from dataclasses import dataclass
 from typing import Callable, ClassVar, Dict, Iterable, Iterator, List, Optional, Tuple
 
 from embiggen.edge_prediction.edge_prediction_ensmallen.perceptron import PerceptronEdgePrediction
 from embiggen.embedders.ensmallen_embedders.first_order_line import FirstOrderLINEEnsmallen
-from ensmallen import Graph
 from oaklib import BasicOntologyInterface, OntologyResource
 from oaklib.datamodels.similarity import TermPairwiseSimilarity
 from oaklib.datamodels.vocabulary import IS_A
@@ -23,6 +23,8 @@ from oaklib.interfaces.search_interface import SearchInterface
 from oaklib.interfaces.semsim_interface import SemanticSimilarityInterface
 from oaklib.interfaces.validator_interface import ValidatorInterface
 from oaklib.types import CURIE, PRED_CURIE
+from grape import Graph
+from grape.similarities import DAGResnik
 
 # Mappings between biolink predicates and RO/OWL/RDF
 # This won't be necessary once we load the ensmallen graph directly
@@ -224,6 +226,10 @@ class GrapeImplementation(
         """Implement OAK interface."""
         if predicates:
             raise ValueError("For now can only use hardcoded ensmallen predicates")
+
+        resnik_model = DAGResnik()
+        resnik_model.fit(self.transposed_graph, node_counts=counts)
+
         raise NotImplementedError
 
     def predict(self) -> Iterator[Tuple[float, CURIE, Optional[PRED_CURIE], CURIE]]:
