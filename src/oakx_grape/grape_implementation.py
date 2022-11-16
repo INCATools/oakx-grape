@@ -244,6 +244,10 @@ class GrapeImplementation(
             return_node_names=True,
             return_similarities_dataframe=True
         )
+        if sim.empty:
+            sim = 0
+        else:
+            sim = sim.to_numpy().flatten().tolist()[2]
 
         tp = TermPairwiseSimilarity(
             subject_id=subject,
