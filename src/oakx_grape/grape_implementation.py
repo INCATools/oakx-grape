@@ -226,7 +226,6 @@ class GrapeImplementation(
         """Implement OAK interface."""
         if predicates:
             raise ValueError("For now can only use hardcoded ensmallen predicates")
-        raise NotImplementedError
 
         if counts is None:
             counts = dict(
