@@ -237,7 +237,7 @@ class GrapeImplementation(
             )
     
         resnik_model = DAGResnik()
-        resnik_model.fit(dag, node_counts=counts)
+        resnik_model.fit(self.transposed_graph, node_counts=counts)
         sim = resnik_model.get_similarities_from_bipartite_graph_node_names(
             source_node_names = [subject],
             target_node_names = [object],
