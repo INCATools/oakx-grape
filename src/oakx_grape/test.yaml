@@ -1,0 +1,10 @@
+fruits:
+  grape:
+    description: a small round fruit that is green or purple
+    size: small
+    flavor: sweet, sour
+  orange:
+    description: a medium sized orange colored fruit
+    size: medium
+    flavor: sweet, sour
+  

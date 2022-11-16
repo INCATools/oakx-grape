@@ -222,15 +222,35 @@ class GrapeImplementation(
         predicates: List[PRED_CURIE] = None,
         subject_ancestors: List[CURIE] = None,
         object_ancestors: List[CURIE] = None,
+        counts: dict = None
     ) -> TermPairwiseSimilarity:
         """Implement OAK interface."""
         if predicates:
             raise ValueError("For now can only use hardcoded ensmallen predicates")
 
+
+        if counts is None:
+            counts = dict(
+                zip(
+                    self.transposed_graph.get_node_names(),
+                    [1] * len(self.transposed_graph.get_node_names()),
+                )
+            )
+    
         resnik_model = DAGResnik()
         resnik_model.fit(self.transposed_graph, node_counts=counts)
+        sim = resnik_model.get_similarities_from_bipartite_graph_node_names(
+            source_node_names = [subject],
+            target_node_names = [object],
+            return_node_names = True
+        )
 
-        raise NotImplementedError
+        tp = TermPairwiseSimilarity(
+            subject_id=subject,
+            object_id=object,
+            ancestor_information_content=sim
+        )
+        return tp
 
     def predict(self) -> Iterator[Tuple[float, CURIE, Optional[PRED_CURIE], CURIE]]:
         """Implement OAK interface."""
