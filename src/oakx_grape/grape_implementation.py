@@ -23,6 +23,7 @@ from oaklib.interfaces.search_interface import SearchInterface
 from oaklib.interfaces.semsim_interface import SemanticSimilarityInterface
 from oaklib.interfaces.validator_interface import ValidatorInterface
 from oaklib.types import CURIE, PRED_CURIE
+from grape.similarities import DAGResnik
 
 # Mappings between biolink predicates and RO/OWL/RDF
 # This won't be necessary once we load the ensmallen graph directly
@@ -220,11 +221,36 @@ class GrapeImplementation(
         predicates: List[PRED_CURIE] = None,
         subject_ancestors: List[CURIE] = None,
         object_ancestors: List[CURIE] = None,
+        counts: dict = None
     ) -> TermPairwiseSimilarity:
         """Implement OAK interface."""
         if predicates:
             raise ValueError("For now can only use hardcoded ensmallen predicates")
         raise NotImplementedError
+
+        if counts is None:
+            counts = dict(
+                zip(
+                    onto_graph.get_node_names(),
+                    [1] * len(onto_graph.get_node_names()),
+                )
+            )
+    
+        resnik_model = DAGResnik()
+        resnik_model.fit(dag, node_counts=counts)
+        sim = resnik_model.get_similarities_from_bipartite_graph_node_names(
+            source_node_names = [subject],
+            target_node_names = [object],
+            return_node_names = True
+        )
+
+        tp = TermPairwiseSimilarity(
+            subject_id=subject,
+            object_id=object,
+            ancestor_information_content=sim
+        )
+        return tp
+
 
     def predict(self) -> Iterator[Tuple[float, CURIE, Optional[PRED_CURIE], CURIE]]:
         """Implement OAK interface."""
