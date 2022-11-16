@@ -56,3 +56,9 @@ class TestGrapeImplementation(unittest.TestCase):
     # wrap oak representation of graph
     # make tsv from this
     # instantiate grape using from_csv
+
+    def test_pairwise_similarity(self):
+        oi2 = get_implementation_from_shorthand("grape:sqlite:obo:bfo")
+        tp = oi2.pairwise_similarity("BFO:0000006", "BFO:0000015")
+        assert tp.empty
+        print(f"tp: {tp}")

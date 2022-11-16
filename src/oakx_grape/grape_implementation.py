@@ -245,10 +245,11 @@ class GrapeImplementation(
             return_similarities_dataframe=True
         )
 
+        print(sim)
         tp = TermPairwiseSimilarity(
             subject_id=subject,
             object_id=object,
-            ancestor_information_content=sim
+            ancestor_information_content=sim[0]
         )
         return tp
 
