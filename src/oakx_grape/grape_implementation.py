@@ -241,7 +241,8 @@ class GrapeImplementation(
         sim = resnik_model.get_similarities_from_bipartite_graph_node_names(
             source_node_names=[subject],
             destination_node_names=[object],
-            return_node_names=True
+            return_node_names=True,
+            return_similarities_dataframe=True
         )
 
         tp = TermPairwiseSimilarity(
