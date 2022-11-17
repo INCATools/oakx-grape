@@ -1,12 +1,13 @@
 """Plugin for ensmallen/grape."""
 import inspect
 import logging
-from grape import *
 from dataclasses import dataclass
 from typing import Callable, ClassVar, Dict, Iterable, Iterator, List, Optional, Tuple
 
 from embiggen.edge_prediction.edge_prediction_ensmallen.perceptron import PerceptronEdgePrediction
 from embiggen.embedders.ensmallen_embedders.first_order_line import FirstOrderLINEEnsmallen
+from grape import Graph
+from grape.similarities import DAGResnik
 from oaklib import BasicOntologyInterface, OntologyResource
 from oaklib.datamodels.similarity import TermPairwiseSimilarity
 from oaklib.datamodels.vocabulary import IS_A
@@ -23,8 +24,6 @@ from oaklib.interfaces.search_interface import SearchInterface
 from oaklib.interfaces.semsim_interface import SemanticSimilarityInterface
 from oaklib.interfaces.validator_interface import ValidatorInterface
 from oaklib.types import CURIE, PRED_CURIE
-from grape import Graph
-from grape.similarities import DAGResnik
 
 # Mappings between biolink predicates and RO/OWL/RDF
 # This won't be necessary once we load the ensmallen graph directly
@@ -235,13 +234,12 @@ class GrapeImplementation(
                     [1] * len(self.transposed_graph.get_node_names()),
                 )
             )
-    
+
         resnik_model = DAGResnik()
         resnik_model.fit(self.transposed_graph, node_counts=counts)
         sim = resnik_model.get_similarities_from_bipartite_graph_node_names(
             source_node_names=[subject],
             destination_node_names=[object],
-            return_node_names=True,
             return_similarities_dataframe=True
         )
 
@@ -249,7 +247,7 @@ class GrapeImplementation(
         tp = TermPairwiseSimilarity(
             subject_id=subject,
             object_id=object,
-            ancestor_information_content=sim[0]
+            ancestor_information_content=sim
         )
         return tp
 
