@@ -60,6 +60,5 @@ class TestGrapeImplementation(unittest.TestCase):
     def test_pairwise_similarity(self):
         """Verify that pairwise similarity returns expected results."""
         oi2 = get_implementation_from_shorthand("grape:sqlite:obo:bfo")
-        tp = oi2.pairwise_similarity("BFO:0000006", "BFO:0000015")
-        assert tp.empty
+        tp = oi2.pairwise_similarity("BFO:0000006", "BFO:0000018")
         print(f"tp: {tp}")
