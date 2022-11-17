@@ -1,6 +1,7 @@
 """Plugin for ensmallen/grape."""
 import inspect
 import logging
+import pandas as pd
 from dataclasses import dataclass
 from typing import Callable, ClassVar, Dict, Iterable, Iterator, List, Optional, Tuple
 
@@ -9,7 +10,7 @@ from embiggen.embedders.ensmallen_embedders.first_order_line import FirstOrderLI
 from grape import Graph
 from grape.similarities import DAGResnik
 from oaklib import BasicOntologyInterface, OntologyResource
-from oaklib.datamodels.similarity import TermPairwiseSimilarity
+from oaklib.datamodels.similarity import TermPairwiseSimilarity, TermSetPairwiseSimilarity
 from oaklib.datamodels.vocabulary import IS_A
 from oaklib.implementations import SqlImplementation
 from oaklib.interfaces import SubsetterInterface
@@ -261,7 +262,7 @@ class GrapeImplementation(
         for _, row in df.iterrows():
             yield row["predictions"], row["sources"], None, row["destinations"]
 
-    def _make_grape_resnik_model(counts: dict = None) -> DAGResnik:
+    def _make_grape_resnik_model(self, counts: dict = None) -> DAGResnik:
             if counts is None:
                 counts = dict(
                     zip(
@@ -272,6 +273,22 @@ class GrapeImplementation(
             resnik_model = DAGResnik()
             resnik_model.fit(self.transposed_graph, node_counts=counts)
             return resnik_model
+
+    def _df_to_pairwise_similarity(
+        self,
+        df: pd.DataFrame,
+    ) -> Iterator[TermPairwiseSimilarity]:
+        """
+        Compute similarity for all combinations of terms in pandas df from grape model
+        :param df:
+        :param predicates:
+        :return:
+        """
+        for s in df["source"]:
+            for o in df["destination"]:
+                yield TermPairwiseSimilarity(subject_id=s,
+                                             object_id=o,
+                                             ancestor_information_content=df[["resnik_score"],df["source"==s, "destination"==o]])
 
     def termset_pairwise_similarity(
             self,
@@ -294,8 +311,7 @@ class GrapeImplementation(
                 return_similarities_dataframe=True
             )
 
-            # TODO turn pairs_from_grape into list of TermPairwiseSimilarity's, like the list returned by this code:
-            # pairs = list(self.all_by_all_pairwise_similarity(subjects, objects, predicates=predicates))
+            pairs = list(self._df_to_pairwise_similarity(pairs_from_grape, predicates=predicates))
 
             bm_subject_score = defaultdict(float)
             bm_subject = {}
