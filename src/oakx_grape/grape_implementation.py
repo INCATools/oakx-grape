@@ -285,6 +285,7 @@ class GrapeImplementation(
     ) -> Iterator[TermPairwiseSimilarity]:
         """
         Assemble similarity for all combinations of terms in pandas df from grape model.
+        
         :param df:
         :param predicates:
         :return:
