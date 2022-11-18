@@ -59,6 +59,16 @@ class TestGrapeImplementation(unittest.TestCase):
 
     def test_pairwise_similarity(self):
         """Verify that pairwise similarity returns expected results."""
-        oi2 = get_implementation_from_shorthand("grape:sqlite:obo:bfo")
-        tp = oi2.pairwise_similarity("BFO:0000006", "BFO:0000018")
-        print(f"tp: {tp}")
+        oi = get_implementation_from_shorthand("grape:sqlite:obo:bfo")
+        tp = oi.pairwise_similarity("BFO:0000006", "BFO:0000018")
+        score = tp.ancestor_information_content
+        self.assertGreaterEqual(len(tp), 7)
+        self.assertGreater(score, 1.65)
+
+    def test_termset_pairwise_similarity(self):
+        """Verify that termset similarity returns expected results."""
+        oi = get_implementation_from_shorthand("grape:sqlite:obo:bfo")
+        tp = oi.termset_pairwise_similarity("BFO:0000006", "BFO:0000018")
+        score = tp.subject_best_matches["BFO:0000006"].score
+        self.assertGreaterEqual(len(tp), 7)
+        self.assertGreater(score, 1.65)
