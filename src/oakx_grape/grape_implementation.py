@@ -229,7 +229,7 @@ class GrapeImplementation(
         predicates: List[PRED_CURIE] = None,
         subject_ancestors: List[CURIE] = None,
         object_ancestors: List[CURIE] = None,
-        counts: dict = None
+        counts: dict = None,
     ) -> TermPairwiseSimilarity:
         """Implement term pairwise similarity."""
         if predicates:
@@ -240,7 +240,7 @@ class GrapeImplementation(
         sim = resnik_model.get_similarities_from_bipartite_graph_node_names(
             source_node_names=[subject],
             destination_node_names=[object],
-            return_similarities_dataframe=True
+            return_similarities_dataframe=True,
         )
         if sim.empty:
             sim = 0
@@ -248,9 +248,7 @@ class GrapeImplementation(
             sim = sim.to_numpy().flatten().tolist()[2]
 
         tp = TermPairwiseSimilarity(
-            subject_id=subject,
-            object_id=object,
-            ancestor_information_content=sim
+            subject_id=subject, object_id=object, ancestor_information_content=sim
         )
         return tp
 
@@ -270,16 +268,16 @@ class GrapeImplementation(
             yield row["predictions"], row["sources"], None, row["destinations"]
 
     def _make_grape_resnik_model(self, counts: dict = None) -> DAGResnik:
-            if counts is None:
-                counts = dict(
-                    zip(
-                        self.transposed_graph.get_node_names(),
-                        [1] * len(self.transposed_graph.get_node_names()),
-                    )
+        if counts is None:
+            counts = dict(
+                zip(
+                    self.transposed_graph.get_node_names(),
+                    [1] * len(self.transposed_graph.get_node_names()),
                 )
-            resnik_model = DAGResnik()
-            resnik_model.fit(self.transposed_graph, node_counts=counts)
-            return resnik_model
+            )
+        resnik_model = DAGResnik()
+        resnik_model.fit(self.transposed_graph, node_counts=counts)
+        return resnik_model
 
     def _df_to_pairwise_similarity(
         self,
@@ -294,18 +292,20 @@ class GrapeImplementation(
         for s in df["source"]:
             for o in df["destination"]:
                 match = (df["source"] == s) & (df["destination"] == o)
-                yield TermPairwiseSimilarity(subject_id=s,
-                                             object_id=o,
-                                             ancestor_information_content=df[match].resnik_score.values[0])
+                yield TermPairwiseSimilarity(
+                    subject_id=s,
+                    object_id=o,
+                    ancestor_information_content=df[match].resnik_score.values[0],
+                )
 
     def termset_pairwise_similarity(
-            self,
-            subjects: List[CURIE],
-            objects: List[CURIE],
-            predicates: List[PRED_CURIE] = None,
-            labels=False,
-            counts = None
-        ) -> TermSetPairwiseSimilarity:
+        self,
+        subjects: List[CURIE],
+        objects: List[CURIE],
+        predicates: List[PRED_CURIE] = None,
+        labels=False,
+        counts=None,
+    ) -> TermSetPairwiseSimilarity:
         """Implement term set pairwise similarity."""
         if predicates:
             raise ValueError("For now can only use hardcoded ensmallen predicates")
@@ -317,7 +317,7 @@ class GrapeImplementation(
             source_node_names=subjects,
             destination_node_names=objects,
             return_similarities_dataframe=True,
-            return_node_names=True
+            return_node_names=True,
         )
 
         pairs = list(self._df_to_pairwise_similarity(pairs_from_grape))
