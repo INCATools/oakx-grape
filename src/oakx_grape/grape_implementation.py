@@ -227,16 +227,8 @@ class GrapeImplementation(
         if predicates:
             raise ValueError("For now can only use hardcoded ensmallen predicates")
 
-        if counts is None:
-            counts = dict(
-                zip(
-                    self.transposed_graph.get_node_names(),
-                    [1] * len(self.transposed_graph.get_node_names()),
-                )
-            )
+        resnik_model = self._make_grape_resnik_model()
 
-        resnik_model = DAGResnik()
-        resnik_model.fit(self.transposed_graph, node_counts=counts)
         sim = resnik_model.get_similarities_from_bipartite_graph_node_names(
             source_node_names=[subject],
             destination_node_names=[object],
@@ -268,3 +260,95 @@ class GrapeImplementation(
         )
         for _, row in df.iterrows():
             yield row["predictions"], row["sources"], None, row["destinations"]
+
+    def _make_grape_resnik_model(counts: dict = None) -> DAGResnik:
+            if counts is None:
+                counts = dict(
+                    zip(
+                        self.transposed_graph.get_node_names(),
+                        [1] * len(self.transposed_graph.get_node_names()),
+                    )
+                )
+            resnik_model = DAGResnik()
+            resnik_model.fit(self.transposed_graph, node_counts=counts)
+            return resnik_model
+
+    def termset_pairwise_similarity(
+            self,
+            subjects: List[CURIE],
+            objects: List[CURIE],
+            predicates: List[PRED_CURIE] = None,
+            labels=False,
+            counts = None
+        ) -> TermSetPairwiseSimilarity:
+
+            if predicates:
+                raise ValueError("For now can only use hardcoded ensmallen predicates")
+
+            curies = set(subjects + objects)
+            resnik_model = self._make_grape_resnik_model()
+
+            pairs_from_grape = resnik_model.get_similarities_from_bipartite_graph_node_names(
+                source_node_names=subjects,
+                destination_node_names=objects,
+                return_similarities_dataframe=True
+            )
+
+            # TODO turn pairs_from_grape into list of TermPairwiseSimilarity's, like the list returned by this code:
+            # pairs = list(self.all_by_all_pairwise_similarity(subjects, objects, predicates=predicates))
+
+            bm_subject_score = defaultdict(float)
+            bm_subject = {}
+            bm_subject_sim = {}
+            bm_object_score = defaultdict(float)
+            bm_object = {}
+            bm_object_sim = {}
+            sim = TermSetPairwiseSimilarity()
+            for x in subjects:
+                sim.subject_termset[x] = TermInfo(x)
+            for x in objects:
+                sim.object_termset[x] = TermInfo(x)
+            for pair in pairs:
+                st = pair.subject_id
+                ot = pair.object_id
+                if pair.ancestor_information_content > bm_subject_score[st]:
+                    bm_subject_score[st] = pair.ancestor_information_content
+                    bm_subject[st] = ot
+                    bm_subject_sim[st] = pair
+                    curies.add(ot)
+                    curies.add(pair.ancestor_id)
+                if pair.ancestor_information_content > bm_object_score[ot]:
+                    bm_object_score[ot] = pair.ancestor_information_content
+                    bm_object[ot] = st
+                    bm_object_sim[ot] = pair
+                    curies.add(ot)
+                    curies.add(pair.ancestor_id)
+            scores = []
+            for s, t in bm_subject.items():
+                score = bm_subject_score[s]
+                sim.subject_best_matches[s] = BestMatch(
+                    s, match_target=t, score=score, similarity=bm_subject_sim[s]
+                )
+                scores.append(score)
+            for s, t in bm_object.items():
+                score = bm_object_score[s]
+                sim.object_best_matches[s] = BestMatch(
+                    s, match_target=t, score=score, similarity=bm_object_sim[s]
+                )
+                scores.append(score)
+            if not scores:
+                scores = [0.0]
+            sim.average_score = statistics.mean(scores)
+            sim.best_score = max(scores)
+            if labels:
+                label_ix = {k: v for k, v in self.labels(curies)}
+                for x in list(sim.subject_termset.values()) + list(sim.object_termset.values()):
+                    x.label = label_ix.get(x.id, None)
+                for x in list(sim.subject_best_matches.values()) + list(
+                    sim.object_best_matches.values()
+                ):
+                    x.match_target_label = label_ix.get(x.match_target, None)
+                    x.match_source_label = label_ix.get(x.match_source, None)
+                    x.similarity.ancestor_label = label_ix.get(x.similarity.ancestor_id, None)
+
+            return sim
