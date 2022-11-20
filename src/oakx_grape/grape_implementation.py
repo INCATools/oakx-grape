@@ -290,7 +290,6 @@ class GrapeImplementation(
         :param predicates:
         :return:
         """
-
         tps_df = df.apply(
             lambda r: TermPairwiseSimilarity(
                 subject_id=r["source"],
