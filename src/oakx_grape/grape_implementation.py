@@ -290,14 +290,20 @@ class GrapeImplementation(
         :param predicates:
         :return:
         """
-        for s in df["source"]:
-            for o in df["destination"]:
-                match = (df["source"] == s) & (df["destination"] == o)
-                yield TermPairwiseSimilarity(
-                    subject_id=s,
-                    object_id=o,
-                    ancestor_information_content=df[match].resnik_score.values[0],
-                )
+        for _, row in df.iterrows():
+
+            # TODO: vectorize instead
+
+            try:
+                ic = row["resnik_score"]
+            except IndexError:  # Value may be empty
+                ic = 0
+
+            yield TermPairwiseSimilarity(
+                subject_id=row["source"],
+                object_id=row["destination"],
+                ancestor_information_content=ic,
+            )
 
     def termset_pairwise_similarity(
         self,
@@ -378,3 +384,31 @@ class GrapeImplementation(
                 x.similarity.ancestor_label = label_ix.get(x.similarity.ancestor_id, None)
 
         return sim
+
+    def all_by_all_pairwise_similarity(
+        self,
+        subjects: Iterable[CURIE],
+        objects: Iterable[CURIE],
+        predicates: List[PRED_CURIE] = None,
+    ) -> Iterator[TermPairwiseSimilarity]:
+        """
+        Compute similarity for all combinations of terms in subsets vs all terms in objects.
+
+        Unlike the standard OAK all_by_all_pairwise_similarity, the grape implementation
+        does all comparisons at once.
+        """
+        if predicates:
+            raise ValueError("For now can only use hardcoded ensmallen predicates")
+
+        resnik_model = self._make_grape_resnik_model()
+
+        sim = resnik_model.get_similarities_from_bipartite_graph_node_names(
+            source_node_names=subjects,
+            destination_node_names=objects,
+            return_similarities_dataframe=True,
+            return_node_names=True,
+        )
+
+        pairs = list(self._df_to_pairwise_similarity(sim))
+
+        return pairs

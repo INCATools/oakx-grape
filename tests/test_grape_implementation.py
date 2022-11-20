@@ -72,3 +72,10 @@ class TestGrapeImplementation(unittest.TestCase):
         score = tp.subject_best_matches["BFO:0000006"].score
         self.assertGreaterEqual(len(tp), 7)
         self.assertGreater(score, 1.65)
+
+    def test_all_by_all_pairwise_similarity(self):
+        """Verify that all by all pairwise similarity returns expected results."""
+        oi = get_implementation_from_shorthand("grape:sqlite:obo:bfo")
+        entities = list(oi.entities())
+        tps = oi.all_by_all_pairwise_similarity(entities, entities)
+        self.assertEqual(540, len(tps))
