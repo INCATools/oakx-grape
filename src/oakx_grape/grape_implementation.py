@@ -290,20 +290,18 @@ class GrapeImplementation(
         :param predicates:
         :return:
         """
-        for _, row in df.iterrows():
 
-            # TODO: vectorize instead
-
-            try:
-                ic = row["resnik_score"]
-            except IndexError:  # Value may be empty
-                ic = 0
-
-            yield TermPairwiseSimilarity(
-                subject_id=row["source"],
-                object_id=row["destination"],
-                ancestor_information_content=ic,
-            )
+        tps_df = df.apply(
+            lambda r: TermPairwiseSimilarity(
+                subject_id=r["source"],
+                object_id=r["destination"],
+                ancestor_information_content=r["resnik_score"],
+            ),
+            axis=1,
+        )
+        tps_list = tps_df.values.tolist()
+        for tps in tps_list:
+            yield tps
 
     def termset_pairwise_similarity(
         self,
