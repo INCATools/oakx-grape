@@ -323,10 +323,10 @@ class GrapeImplementation(
 
         pairs = list(self._df_to_pairwise_similarity(pairs_from_grape))
 
-        bm_subject_score = defaultdict(float)
+        bm_subject_score: dict = defaultdict(float)
         bm_subject = {}
         bm_subject_sim = {}
-        bm_object_score = defaultdict(float)
+        bm_object_score: dict = defaultdict(float)
         bm_object = {}
         bm_object_sim = {}
         sim = TermSetPairwiseSimilarity()
