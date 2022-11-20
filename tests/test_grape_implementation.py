@@ -78,4 +78,4 @@ class TestGrapeImplementation(unittest.TestCase):
         oi = get_implementation_from_shorthand("grape:sqlite:obo:bfo")
         entities = list(oi.entities())
         tps = oi.all_by_all_pairwise_similarity(entities, entities)
-        self.assertEqual(540, len(tps))
+        self.assertEqual(540, len(list(tps)))

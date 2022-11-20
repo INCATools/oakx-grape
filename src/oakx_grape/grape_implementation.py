@@ -406,6 +406,6 @@ class GrapeImplementation(
             return_node_names=True,
         )
 
-        pairs = list(self._df_to_pairwise_similarity(sim))
+        pairs = iter(self._df_to_pairwise_similarity(sim))
 
         return pairs
