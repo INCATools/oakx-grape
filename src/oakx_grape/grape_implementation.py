@@ -1,14 +1,23 @@
 """Plugin for ensmallen/grape."""
 import inspect
 import logging
+import statistics
+from collections import defaultdict
 from dataclasses import dataclass
 from typing import Callable, ClassVar, Dict, Iterable, Iterator, List, Optional, Tuple
 
+import pandas as pd
 from embiggen.edge_prediction.edge_prediction_ensmallen.perceptron import PerceptronEdgePrediction
 from embiggen.embedders.ensmallen_embedders.first_order_line import FirstOrderLINEEnsmallen
-from ensmallen import Graph
+from grape import Graph
+from grape.similarities import DAGResnik
 from oaklib import BasicOntologyInterface, OntologyResource
-from oaklib.datamodels.similarity import TermPairwiseSimilarity
+from oaklib.datamodels.similarity import (
+    BestMatch,
+    TermInfo,
+    TermPairwiseSimilarity,
+    TermSetPairwiseSimilarity,
+)
 from oaklib.datamodels.vocabulary import IS_A
 from oaklib.implementations import SqlImplementation
 from oaklib.interfaces import SubsetterInterface
@@ -220,11 +229,28 @@ class GrapeImplementation(
         predicates: List[PRED_CURIE] = None,
         subject_ancestors: List[CURIE] = None,
         object_ancestors: List[CURIE] = None,
+        counts: dict = None,
     ) -> TermPairwiseSimilarity:
-        """Implement OAK interface."""
+        """Implement term pairwise similarity."""
         if predicates:
             raise ValueError("For now can only use hardcoded ensmallen predicates")
-        raise NotImplementedError
+
+        resnik_model = self._make_grape_resnik_model()
+
+        sim = resnik_model.get_similarities_from_bipartite_graph_node_names(
+            source_node_names=[subject],
+            destination_node_names=[object],
+            return_similarities_dataframe=True,
+        )
+        if sim.empty:
+            sim = 0
+        else:
+            sim = sim.to_numpy().flatten().tolist()[2]
+
+        tp = TermPairwiseSimilarity(
+            subject_id=subject, object_id=object, ancestor_information_content=sim
+        )
+        return tp
 
     def predict(self) -> Iterator[Tuple[float, CURIE, Optional[PRED_CURIE], CURIE]]:
         """Implement OAK interface."""
@@ -240,3 +266,146 @@ class GrapeImplementation(
         )
         for _, row in df.iterrows():
             yield row["predictions"], row["sources"], None, row["destinations"]
+
+    def _make_grape_resnik_model(self, counts: dict = None) -> DAGResnik:
+        if counts is None:
+            counts = dict(
+                zip(
+                    self.transposed_graph.get_node_names(),
+                    [1] * len(self.transposed_graph.get_node_names()),
+                )
+            )
+        resnik_model = DAGResnik()
+        resnik_model.fit(self.transposed_graph, node_counts=counts)
+        return resnik_model
+
+    def _df_to_pairwise_similarity(
+        self,
+        df: pd.DataFrame,
+    ) -> Iterator[TermPairwiseSimilarity]:
+        """
+        Assemble similarity for all combinations of terms in pandas df from grape model.
+
+        :param df:
+        :param predicates:
+        :return:
+        """
+        tps_df = df.apply(
+            lambda r: TermPairwiseSimilarity(
+                subject_id=r["source"],
+                object_id=r["destination"],
+                ancestor_information_content=r["resnik_score"],
+            ),
+            axis=1,
+        )
+        tps_list = tps_df.values.tolist()
+        for tps in tps_list:
+            yield tps
+
+    def termset_pairwise_similarity(
+        self,
+        subjects: List[CURIE],
+        objects: List[CURIE],
+        predicates: List[PRED_CURIE] = None,
+        labels=False,
+        counts=None,
+    ) -> TermSetPairwiseSimilarity:
+        """Implement term set pairwise similarity."""
+        if predicates:
+            raise ValueError("For now can only use hardcoded ensmallen predicates")
+
+        curies = set(subjects + objects)
+        resnik_model = self._make_grape_resnik_model()
+
+        pairs_from_grape = resnik_model.get_similarities_from_bipartite_graph_node_names(
+            source_node_names=subjects,
+            destination_node_names=objects,
+            return_similarities_dataframe=True,
+            return_node_names=True,
+        )
+
+        pairs = list(self._df_to_pairwise_similarity(pairs_from_grape))
+
+        bm_subject_score: dict = defaultdict(float)
+        bm_subject = {}
+        bm_subject_sim = {}
+        bm_object_score: dict = defaultdict(float)
+        bm_object = {}
+        bm_object_sim = {}
+        sim = TermSetPairwiseSimilarity()
+        for x in subjects:
+            sim.subject_termset[x] = TermInfo(x)
+        for x in objects:
+            sim.object_termset[x] = TermInfo(x)
+        for pair in pairs:
+            st = pair.subject_id
+            ot = pair.object_id
+            if pair.ancestor_information_content > bm_subject_score[st]:
+                bm_subject_score[st] = pair.ancestor_information_content
+                bm_subject[st] = ot
+                bm_subject_sim[st] = pair
+                curies.add(ot)
+                curies.add(pair.ancestor_id)
+            if pair.ancestor_information_content > bm_object_score[ot]:
+                bm_object_score[ot] = pair.ancestor_information_content
+                bm_object[ot] = st
+                bm_object_sim[ot] = pair
+                curies.add(ot)
+                curies.add(pair.ancestor_id)
+        scores = []
+        for s, t in bm_subject.items():
+            score = bm_subject_score[s]
+            sim.subject_best_matches[s] = BestMatch(
+                s, match_target=t, score=score, similarity=bm_subject_sim[s]
+            )
+            scores.append(score)
+        for s, t in bm_object.items():
+            score = bm_object_score[s]
+            sim.object_best_matches[s] = BestMatch(
+                s, match_target=t, score=score, similarity=bm_object_sim[s]
+            )
+            scores.append(score)
+        if not scores:
+            scores = [0.0]
+        sim.average_score = statistics.mean(scores)
+        sim.best_score = max(scores)
+        if labels:
+            label_ix = {k: v for k, v in self.labels(curies)}
+            for x in list(sim.subject_termset.values()) + list(sim.object_termset.values()):
+                x.label = label_ix.get(x.id, None)
+            for x in list(sim.subject_best_matches.values()) + list(
+                sim.object_best_matches.values()
+            ):
+                x.match_target_label = label_ix.get(x.match_target, None)
+                x.match_source_label = label_ix.get(x.match_source, None)
+                x.similarity.ancestor_label = label_ix.get(x.similarity.ancestor_id, None)
+
+        return sim
+
+    def all_by_all_pairwise_similarity(
+        self,
+        subjects: Iterable[CURIE],
+        objects: Iterable[CURIE],
+        predicates: List[PRED_CURIE] = None,
+    ) -> Iterator[TermPairwiseSimilarity]:
+        """
+        Compute similarity for all combinations of terms in subsets vs all terms in objects.
+
+        Unlike the standard OAK all_by_all_pairwise_similarity, the grape implementation
+        does all comparisons at once.
+        """
+        if predicates:
+            raise ValueError("For now can only use hardcoded ensmallen predicates")
+
+        resnik_model = self._make_grape_resnik_model()
+
+        sim = resnik_model.get_similarities_from_bipartite_graph_node_names(
+            source_node_names=subjects,
+            destination_node_names=objects,
+            return_similarities_dataframe=True,
+            return_node_names=True,
+        )
+
+        pairs = iter(self._df_to_pairwise_similarity(sim))
+
+        return pairs

@@ -56,3 +56,26 @@ class TestGrapeImplementation(unittest.TestCase):
     # wrap oak representation of graph
     # make tsv from this
     # instantiate grape using from_csv
+
+    def test_pairwise_similarity(self):
+        """Verify that pairwise similarity returns expected results."""
+        oi = get_implementation_from_shorthand("grape:sqlite:obo:bfo")
+        tp = oi.pairwise_similarity("BFO:0000006", "BFO:0000018")
+        score = tp.ancestor_information_content
+        self.assertGreaterEqual(len(tp), 7)
+        self.assertGreater(score, 1.65)
+
+    def test_termset_pairwise_similarity(self):
+        """Verify that termset similarity returns expected results."""
+        oi = get_implementation_from_shorthand("grape:sqlite:obo:bfo")
+        tp = oi.termset_pairwise_similarity(["BFO:0000006"], ["BFO:0000018"])
+        score = tp.subject_best_matches["BFO:0000006"].score
+        self.assertGreaterEqual(len(tp), 7)
+        self.assertGreater(score, 1.65)
+
+    def test_all_by_all_pairwise_similarity(self):
+        """Verify that all by all pairwise similarity returns expected results."""
+        oi = get_implementation_from_shorthand("grape:sqlite:obo:bfo")
+        entities = list(oi.entities())
+        tps = oi.all_by_all_pairwise_similarity(entities, entities)
+        self.assertEqual(540, len(list(tps)))
