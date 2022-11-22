@@ -312,7 +312,9 @@ class GrapeImplementation(
     ) -> TermSetPairwiseSimilarity:
         """Implement term set pairwise similarity."""
         if predicates:
-            raise ValueError("For now can only use hardcoded ensmallen predicates")
+            graph = self.transposed_graph
+            graph_preds = [graph.get_edge_type_id_from_edge_type_name(p) for p in predicates]
+            dag = (graph).filter_from_ids(edge_type_ids_to_keep=graph_preds)
 
         curies = set(subjects + objects)
         resnik_model = self._make_grape_resnik_model()
