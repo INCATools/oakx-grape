@@ -40,7 +40,7 @@ from oaklib.utilities.basic_utils import pairs_as_dict
 
 from oakx_grape.loader import load_graph_from_adapter
 
-PREDICATE_MAP = {"biolink:subclass_of": IS_A}
+PREDICATE_MAP = {"rdfs:subClassOf": IS_A}
 
 GRAPH_PAIR = Tuple[Graph, Graph]
 
@@ -267,16 +267,20 @@ class GrapeImplementation(
         for _, row in df.iterrows():
             yield row["predictions"], row["sources"], None, row["destinations"]
 
-    def _make_grape_resnik_model(self, counts: dict = None) -> DAGResnik:
+    def _make_grape_resnik_model(self, counts: dict = None, dag: Graph = None) -> DAGResnik:
+        if dag:
+            graph = dag
+        else:
+            graph = self.transposed_graph
         if counts is None:
             counts = dict(
                 zip(
-                    self.transposed_graph.get_node_names(),
-                    [1] * len(self.transposed_graph.get_node_names()),
+                    graph.get_node_names(),
+                    [1] * len(graph.get_node_names()),
                 )
             )
         resnik_model = DAGResnik()
-        resnik_model.fit(self.transposed_graph, node_counts=counts)
+        resnik_model.fit(graph, node_counts=counts)
         return resnik_model
 
     def _df_to_pairwise_similarity(
@@ -315,9 +319,30 @@ class GrapeImplementation(
             graph = self.transposed_graph
             graph_preds = [graph.get_edge_type_id_from_edge_type_name(p) for p in predicates]
             dag = (graph).filter_from_ids(edge_type_ids_to_keep=graph_preds)
+            try:
+                dag.must_be_connected()
+            except ValueError:
+                comps = dag.get_number_of_connected_components()
+                num_comps = comps[0]
+                max_comp = comps[2]
+                print(
+                    "Graph contains multiple disconnected components."
+                    " Will ignore all but the largest component."
+                    f" {num_comps} components are present."
+                    f" Largest component has {max_comp} nodes."
+                )
+                dag = dag.remove_components(top_k_components=1)
+            resnik_model = self._make_grape_resnik_model(dag=dag)
+        else:
+            resnik_model = self._make_grape_resnik_model()
 
         curies = set(subjects + objects)
-        resnik_model = self._make_grape_resnik_model()
+
+        # TODO: handle situations where the query node name(s) is
+        # not in the graph, since it may have been filtered out.
+        # In a termset comparison this may apply to only a subset
+        # of the nodes, so we may need to check on their existence
+        # first.
 
         pairs_from_grape = resnik_model.get_similarities_from_bipartite_graph_node_names(
             source_node_names=subjects,
