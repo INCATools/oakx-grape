@@ -233,7 +233,10 @@ class GrapeImplementation(
     ) -> TermPairwiseSimilarity:
         """Implement term pairwise similarity."""
         if predicates:
-            raise ValueError("For now can only use hardcoded ensmallen predicates")
+            dag = self.preprocess_to_dag(self.transposed_graph, predicates)
+            resnik_model = self._make_grape_resnik_model(dag=dag)
+        else:
+            resnik_model = self._make_grape_resnik_model()
 
         resnik_model = self._make_grape_resnik_model()
 
@@ -316,22 +319,7 @@ class GrapeImplementation(
     ) -> TermSetPairwiseSimilarity:
         """Implement term set pairwise similarity."""
         if predicates:
-            graph = self.transposed_graph
-            graph_preds = [graph.get_edge_type_id_from_edge_type_name(p) for p in predicates]
-            dag = (graph).filter_from_ids(edge_type_ids_to_keep=graph_preds)
-            try:
-                dag.must_be_connected()
-            except ValueError:
-                comps = dag.get_number_of_connected_components()
-                num_comps = comps[0]
-                max_comp = comps[2]
-                print(
-                    "Graph contains multiple disconnected components."
-                    " Will ignore all but the largest component."
-                    f" {num_comps} components are present."
-                    f" Largest component has {max_comp} nodes."
-                )
-                dag = dag.remove_components(top_k_components=1)
+            dag = self.preprocess_to_dag(self.transposed_graph, predicates)
             resnik_model = self._make_grape_resnik_model(dag=dag)
         else:
             resnik_model = self._make_grape_resnik_model()
@@ -422,7 +410,10 @@ class GrapeImplementation(
         does all comparisons at once.
         """
         if predicates:
-            raise ValueError("For now can only use hardcoded ensmallen predicates")
+            dag = self.preprocess_to_dag(self.transposed_graph, predicates)
+            resnik_model = self._make_grape_resnik_model(dag=dag)
+        else:
+            resnik_model = self._make_grape_resnik_model()
 
         resnik_model = self._make_grape_resnik_model()
 
@@ -436,3 +427,25 @@ class GrapeImplementation(
         pairs = iter(self._df_to_pairwise_similarity(sim))
 
         return pairs
+
+    def preprocess_to_dag(self, graph: Graph, predicates: List[PRED_CURIE]) -> Graph:
+        """
+        Process input graph to be compatible with grape models.
+        """
+        graph_preds = [graph.get_edge_type_id_from_edge_type_name(p) for p in predicates]
+        dag = (graph).filter_from_ids(edge_type_ids_to_keep=graph_preds)
+        try:
+            dag.must_be_connected()
+        except ValueError:
+            comps = dag.get_number_of_connected_components()
+            num_comps = comps[0]
+            max_comp = comps[2]
+            print(
+                "Graph contains multiple disconnected components."
+                " Will ignore all but the largest component."
+                f" {num_comps} components are present."
+                f" Largest component has {max_comp} nodes."
+            )
+            dag = dag.remove_components(top_k_components=1)
+        
+        return dag
