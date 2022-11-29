@@ -18,7 +18,7 @@ from oaklib.datamodels.similarity import (
     TermPairwiseSimilarity,
     TermSetPairwiseSimilarity,
 )
-from oaklib.datamodels.vocabulary import IS_A
+from oaklib.datamodels.vocabulary import IS_A, PART_OF
 from oaklib.implementations import SqlImplementation
 from oaklib.interfaces import SubsetterInterface
 from oaklib.interfaces.basic_ontology_interface import RELATIONSHIP_MAP
@@ -40,7 +40,8 @@ from oaklib.utilities.basic_utils import pairs_as_dict
 
 from oakx_grape.loader import load_graph_from_adapter
 
-PREDICATE_MAP = {"rdfs:subClassOf": IS_A}
+PREDICATE_MAP = {"rdfs:subClassOf": IS_A,
+                 "BFO:0000050": PART_OF}
 
 GRAPH_PAIR = Tuple[Graph, Graph]
 
