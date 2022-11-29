@@ -13,6 +13,9 @@ class TestGrapeImplementation(unittest.TestCase):
     def setUp(self) -> None:
         """Set up implementation."""
         self.oi = get_implementation_from_shorthand("grape:sqlite:obo:pato")
+        self.predicates = ["rdfs:subClassOf"]
+        self.bfo_subject = "BFO:0000006"
+        self.bfo_object = "BFO:0000018"
 
     def test_entities(self):
         """Test basic functionality."""
@@ -60,7 +63,13 @@ class TestGrapeImplementation(unittest.TestCase):
     def test_pairwise_similarity(self):
         """Verify that pairwise similarity returns expected results."""
         oi = get_implementation_from_shorthand("grape:sqlite:obo:bfo")
-        tp = oi.pairwise_similarity("BFO:0000006", "BFO:0000018")
+        tp = oi.pairwise_similarity(self.bfo_subject, self.bfo_object)
+        score = tp.ancestor_information_content
+        self.assertGreaterEqual(len(tp), 7)
+        self.assertGreater(score, 1.65)
+
+        # And with predicates.
+        tp = oi.pairwise_similarity(self.bfo_subject, self.bfo_object, self.predicates)
         score = tp.ancestor_information_content
         self.assertGreaterEqual(len(tp), 7)
         self.assertGreater(score, 1.65)
@@ -68,8 +77,14 @@ class TestGrapeImplementation(unittest.TestCase):
     def test_termset_pairwise_similarity(self):
         """Verify that termset similarity returns expected results."""
         oi = get_implementation_from_shorthand("grape:sqlite:obo:bfo")
-        tp = oi.termset_pairwise_similarity(["BFO:0000006"], ["BFO:0000018"])
-        score = tp.subject_best_matches["BFO:0000006"].score
+        tp = oi.termset_pairwise_similarity([self.bfo_subject], [self.bfo_object])
+        score = tp.subject_best_matches[self.bfo_subject].score
+        self.assertGreaterEqual(len(tp), 7)
+        self.assertGreater(score, 1.65)
+
+        # And with predicates.
+        tp = oi.termset_pairwise_similarity([self.bfo_subject], [self.bfo_object], self.predicates)
+        score = tp.subject_best_matches[self.bfo_subject].score
         self.assertGreaterEqual(len(tp), 7)
         self.assertGreater(score, 1.65)
 
@@ -78,4 +93,8 @@ class TestGrapeImplementation(unittest.TestCase):
         oi = get_implementation_from_shorthand("grape:sqlite:obo:bfo")
         entities = list(oi.entities())
         tps = oi.all_by_all_pairwise_similarity(entities, entities)
+        self.assertEqual(540, len(list(tps)))
+
+        # And with predicates.
+        tps = oi.all_by_all_pairwise_similarity(entities, entities, self.predicates)
         self.assertEqual(540, len(list(tps)))
