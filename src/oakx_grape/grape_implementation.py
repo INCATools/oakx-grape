@@ -430,9 +430,7 @@ class GrapeImplementation(
         return pairs
 
     def preprocess_to_dag(self, graph: Graph, predicates: List[PRED_CURIE]) -> Graph:
-        """
-        Process input graph to be compatible with grape models.
-        """
+        """Process input graph to be compatible with grape models."""
         graph_preds = [graph.get_edge_type_id_from_edge_type_name(p) for p in predicates]
         dag = (graph).filter_from_ids(edge_type_ids_to_keep=graph_preds)
         try:
@@ -448,5 +446,5 @@ class GrapeImplementation(
                 f" Largest component has {max_comp} nodes."
             )
             dag = dag.remove_components(top_k_components=1)
-        
+
         return dag
