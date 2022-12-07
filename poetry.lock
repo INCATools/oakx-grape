@@ -2645,7 +2645,7 @@ docs = ["sphinx", "sphinx-autodoc-typehints", "sphinx-click", "myst-parser", "fu
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.9,<3.12"
-content-hash = "f418396c244b9c892b96307114da55aa1f09d0be3ee19feb2ac937c5cdc72b63"
+content-hash = "8a43fcb450c71fa949cd13b58f14b27485875772dd5fa51c35ae03cf612f1a8f"
 
 [metadata.files]
 aiohttp = [
