@@ -485,7 +485,7 @@ test = ["codacy-coverage", "coveralls", "pylint", "pytest", "pytest-cov", "silen
 
 [[package]]
 name = "ensmallen"
-version = "0.8.28"
+version = "0.8.36"
 description = "🍇 Ensmallen is the Rust/Python high-performance graph processing submodule of the GraPE library."
 category = "main"
 optional = false
@@ -2641,7 +2641,7 @@ docs = ["sphinx", "sphinx-autodoc-typehints", "sphinx-click", "myst-parser", "fu
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.9,<3.12"
-content-hash = "d328a1d9d1c61a50ebeb86b141b59750f0a030f8828908c050cfb7ec2258ec2f"
+content-hash = "2c447b8db51cef1eb54aba6b0b367571828b9eea0616aa6199a137b98354f178"
 
 [metadata.files]
 aiohttp = [
@@ -2940,10 +2940,8 @@ embiggen = [
     {file = "embiggen-0.11.39.tar.gz", hash = "sha256:f66cf38a9515b42b4f493f6e55658e9370bdbfc239181cc3c76c4d11d473c51a"},
 ]
 ensmallen = [
-    {file = "ensmallen-0.8.28-cp37-abi3-macosx_10_7_x86_64.whl", hash = "sha256:6aadfbcdb9f0996019b9b06be0b6bc987940ad2e80977986bf586b26ccaa7dc6"},
-    {file = "ensmallen-0.8.28-cp37-abi3-macosx_11_0_arm64.whl", hash = "sha256:2585cb2492d4d94913bf54d87852f8d166521ad247ab5056b0ecf2405babec4a"},
-    {file = "ensmallen-0.8.28-cp37-abi3-manylinux_2_12_x86_64.manylinux2010_x86_64.whl", hash = "sha256:f34c4e6138c438978540edfcbc91ec9a2fe66f74d7a5f6aa92ec6e4e66c29018"},
-    {file = "ensmallen-0.8.28-cp37-abi3-win_amd64.whl", hash = "sha256:763114c3b2ab2b1747019a8d6a6e85ec6c83d1673969dd4b6df49ed4ef97c971"},
+    {file = "ensmallen-0.8.36-cp37-abi3-macosx_10_7_x86_64.whl", hash = "sha256:c9ec3cd196aa21a6ddcb8b016073ea3e02ea99b715f39cb44e3b2653135628bd"},
+    {file = "ensmallen-0.8.36-cp37-abi3-macosx_11_0_arm64.whl", hash = "sha256:73b5e652293b14f17e6c0405b37c07003990e6d701a34e6829a5c1ec88b9a776"},
 ]
 environments-utils = [
     {file = "environments_utils-1.0.9.tar.gz", hash = "sha256:ca035e3cfc76673363fcc706871c4f7a9d157326692e3940abe7dff628900d19"},

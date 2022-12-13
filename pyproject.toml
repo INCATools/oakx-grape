@@ -15,7 +15,7 @@ importlib = "^1.0.4"
 scipy = "^1.9.0"
 oaklib = "^0.1.43"
 grape = "*"
-ensmallen = "0.8.28"
+ensmallen = "^0.8.36"
 sphinx = {version = "^5.3.0", extras = ["docs"]}
 sphinx-autodoc-typehints = {version = "^1.19.4", extras = ["docs"]}
 sphinx-click = {version = "^4.3.0", extras = ["docs"]}
