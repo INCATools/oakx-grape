@@ -440,6 +440,21 @@ optional = false
 python-versions = ">=3.7"
 
 [[package]]
+name = "downloaders"
+version = "1.0.15"
+description = "Python package to handle download of multiple types of files."
+category = "main"
+optional = false
+python-versions = "*"
+
+[package.dependencies]
+pandas = "*"
+tqdm = "*"
+
+[package.extras]
+test = ["codacy-coverage", "coveralls", "pytest", "pytest-cov", "validate_version_code"]
+
+[[package]]
 name = "embiggen"
 version = "0.11.42"
 description = "🍇 Embiggen is the Python Graph Representation learning, Prediction and Evaluation module processing submodule of the GRAPE library."
@@ -471,11 +486,23 @@ test = ["codacy-coverage", "coveralls", "pylint", "pytest", "pytest-cov", "silen
 
 [[package]]
 name = "ensmallen"
-version = "0.8.35"
+version = "0.8.36"
 description = "🍇 Ensmallen is the Rust/Python high-performance graph processing submodule of the GraPE library."
 category = "main"
 optional = false
-python-versions = "*"
+python-versions = ">=3.7"
+
+[package.dependencies]
+bioregistry = ">=0.5.65"
+cache_decorator = ">=2.1.11"
+compress_json = ">=1.0.7"
+downloaders = ">=1.0.15"
+environments_utils = ">=1.0.4"
+pandas = "*"
+py-cpuinfo = "*"
+toml = ">=0.10.0,<0.11.0"
+tqdm = "*"
+userinput = ">=1.0.19"
 
 [[package]]
 name = "environments-utils"
@@ -1581,6 +1608,14 @@ optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
 
 [[package]]
+name = "py-cpuinfo"
+version = "9.0.0"
+description = "Get CPU info with pure Python"
+category = "main"
+optional = false
+python-versions = "*"
+
+[[package]]
 name = "pydantic"
 version = "1.10.2"
 description = "Data validation and settings management using python type hints"
@@ -2375,6 +2410,14 @@ optional = false
 python-versions = ">=3.6"
 
 [[package]]
+name = "toml"
+version = "0.10.2"
+description = "Python Library for Tom's Obvious, Minimal Language"
+category = "main"
+optional = false
+python-versions = ">=2.6, !=3.0.*, !=3.1.*, !=3.2.*"
+
+[[package]]
 name = "tomli"
 version = "2.0.1"
 description = "A lil' TOML parser"
@@ -2599,7 +2642,7 @@ docs = ["sphinx", "sphinx-autodoc-typehints", "sphinx-click", "myst-parser", "fu
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.9,<3.12"
-content-hash = "14db08499ef8aa1d7f122dfba7819e454513d057fe8c8fb340618440f51665fe"
+content-hash = "1b2e7eeae9a0cb77adeff37014938c6f191ee083f63f7da6a0ef98f4d31d9467"
 
 [metadata.files]
 aiohttp = [
@@ -2891,12 +2934,15 @@ docutils = [
     {file = "docutils-0.19-py3-none-any.whl", hash = "sha256:5e1de4d849fee02c63b040a4a3fd567f4ab104defd8a5511fbbc24a8a017efbc"},
     {file = "docutils-0.19.tar.gz", hash = "sha256:33995a6753c30b7f577febfc2c50411fec6aac7f7ffeb7c4cfe5991072dcf9e6"},
 ]
+downloaders = [
+    {file = "downloaders-1.0.15.tar.gz", hash = "sha256:7381178230398e804794229e9f42338c4f408a0368c83da90e730005854523de"},
+]
 embiggen = [
     {file = "embiggen-0.11.42.tar.gz", hash = "sha256:3dfdf4046db5f63c208275d2d38fafbae3f135eaac18b1e39e4c91d994b23dbd"},
 ]
 ensmallen = [
-    {file = "ensmallen-0.8.35-cp37-abi3-macosx_10_7_x86_64.whl", hash = "sha256:3f79f0b852118d4ee5db595a49daced2b3b35250c45ff8beb386de1d32ebaaf1"},
-    {file = "ensmallen-0.8.35-cp37-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:ed4509f2cdb8e1c8c08f0aced08dd247261ef70ea486549b316d9f697ce92fd6"},
+    {file = "ensmallen-0.8.36-cp37-abi3-macosx_10_7_x86_64.whl", hash = "sha256:c9ec3cd196aa21a6ddcb8b016073ea3e02ea99b715f39cb44e3b2653135628bd"},
+    {file = "ensmallen-0.8.36-cp37-abi3-macosx_11_0_arm64.whl", hash = "sha256:73b5e652293b14f17e6c0405b37c07003990e6d701a34e6829a5c1ec88b9a776"},
 ]
 environments-utils = [
     {file = "environments_utils-1.0.9.tar.gz", hash = "sha256:ca035e3cfc76673363fcc706871c4f7a9d157326692e3940abe7dff628900d19"},
@@ -3692,6 +3738,10 @@ py = [
     {file = "py-1.11.0-py2.py3-none-any.whl", hash = "sha256:607c53218732647dff4acdfcd50cb62615cedf612e72d1724fb1a0cc6405b378"},
     {file = "py-1.11.0.tar.gz", hash = "sha256:51c75c4126074b472f746a24399ad32f6053d1b34b68d2fa41e558e6f4a98719"},
 ]
+py-cpuinfo = [
+    {file = "py-cpuinfo-9.0.0.tar.gz", hash = "sha256:3cdbbf3fac90dc6f118bfd64384f309edeadd902d7c8fb17f02ffa1fc3f49690"},
+    {file = "py_cpuinfo-9.0.0-py3-none-any.whl", hash = "sha256:859625bc251f64e21f077d099d4162689c762b5d6a4c3c97553d56241c9674d5"},
+]
 pydantic = [
     {file = "pydantic-1.10.2-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:bb6ad4489af1bac6955d38ebcb95079a836af31e4c4f74aba1ca05bb9f6027bd"},
     {file = "pydantic-1.10.2-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:a1f5a63a6dfe19d719b1b6e6106561869d2efaca6167f84f5ab9347887d78b98"},
@@ -4111,6 +4161,10 @@ support-developer = [
 threadpoolctl = [
     {file = "threadpoolctl-3.1.0-py3-none-any.whl", hash = "sha256:8b99adda265feb6773280df41eece7b2e6561b772d21ffd52e372f999024907b"},
     {file = "threadpoolctl-3.1.0.tar.gz", hash = "sha256:a335baacfaa4400ae1f0d8e3a58d6674d2f8828e3716bb2802c44955ad391380"},
+]
+toml = [
+    {file = "toml-0.10.2-py2.py3-none-any.whl", hash = "sha256:806143ae5bfb6a3c6e736a764057db0e6a0e05e338b5630894a5f779cabb4f9b"},
+    {file = "toml-0.10.2.tar.gz", hash = "sha256:b3bda1d108d5dd99f4a20d24d9c348e91c4db7ab1b749200bded2f839ccbe68f"},
 ]
 tomli = [
     {file = "tomli-2.0.1-py3-none-any.whl", hash = "sha256:939de3e7a6161af0c887ef91b7d41a53e7c5a1ca976325f429cb46ea9bc30ecc"},
