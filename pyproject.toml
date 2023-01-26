@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "oakx-grape"
-version = "0.1.0"
+version = "0.1.1"
 description = "oakx-grape"
 authors = ["Harshad Hegde <hhegde@lbl.gov>"]
 license = "BSD 3"
@@ -15,12 +15,12 @@ importlib = "^1.0.4"
 scipy = "^1.9.0"
 oaklib = "^0.1.43"
 grape = "*"
-ensmallen = "^0.8.36"
 sphinx = {version = "^5.3.0", extras = ["docs"]}
 sphinx-autodoc-typehints = {version = "^1.19.4", extras = ["docs"]}
 sphinx-click = {version = "^4.3.0", extras = ["docs"]}
 myst-parser = {version = "^0.18.1", extras = ["docs"]}
 furo = {version = "^2022.9.29", extras = ["docs"]}
+fastobo = "^0.12.2"
 
 [tool.poetry.dev-dependencies]
 pytest = "^7.1.2"
